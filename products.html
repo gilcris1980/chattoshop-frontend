@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - ChattoShop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css-all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-indigo-600">ChattoShop</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
+                    <a href="products.html" class="text-gray-700 hover:text-indigo-600 font-medium text-indigo-600">Products</a>
+                    <!-- Seller: My Products link in navbar -->
+                    <a id="nav-my-products" href="seller-products.html" class="hidden text-gray-700 hover:text-indigo-600 font-medium">My Products</a>
+                    <div id="nav-auth">
+                        <a href="login.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Login</a>
+                        <a href="register.html" class="ml-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Sign Up</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="cart-btn" class="relative p-2 text-gray-600 hover:text-indigo-600">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </button>
+                    <div id="nav-user" class="hidden flex items-center space-x-3">
+                        <button id="notification-btn" class="relative p-2 text-gray-600 hover:text-indigo-600">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notif-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                        
+                        <!-- User Menu Button -->
+                        <div class="relative">
+                            <button id="user-menu-btn" class="flex items-center space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition">
+                                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" class="w-8 h-8 rounded-full">
+                                <span id="user-name" class="font-medium text-gray-700">User</span>
+                                <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                            </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
+                                <div class="px-4 py-3 border-b">
+                                    <p id="dropdown-user-name" class="font-medium text-gray-800">User Name</p>
+                                    <p id="dropdown-user-email" class="text-sm text-gray-500">user@email.com</p>
+                                </div>
+                                <a href="profile.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
+                                    <i class="fas fa-user mr-2"></i> Profile
+                                </a>
+                                <a href="orders.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
+                                    <i class="fas fa-shopping-bag mr-2"></i> My Orders
+                                </a>
+                                
+                                <!-- Customer Only: Dashboard -->
+                                <a id="dashboard-link" href="dashboard.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
+                                    <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                                </a>
+                                
+                                <!-- Seller Only: My Products -->
+                                <a id="my-products-link" href="seller-products.html" class="hidden block px-4 py-2 text-gray-700 hover:bg-indigo-50">
+                                    <i class="fas fa-box mr-2"></i> My Products
+                                </a>
+                                
+                                <!-- Seller Only: Seller Dashboard -->
+                                <a id="seller-link" href="seller-dashboard.html" class="hidden block px-4 py-2 text-blue-600 hover:bg-blue-50">
+                                    <i class="fas fa-store mr-2"></i> Seller Dashboard
+                                </a>
+                                
+                                <!-- Admin/System Admin: Admin Panel -->
+                                <a id="admin-link" href="admin-dashboard.html" class="hidden block px-4 py-2 text-red-600 hover:bg-red-50">
+                                    <i class="fas fa-shield-alt mr-2"></i> Admin Panel
+                                </a>
+                                
+                                <button onclick="logout()" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-100 mt-1 pt-1">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar Filters -->
+            <div class="lg:w-1/4">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="font-semibold text-lg mb-4">Filters</h3>
+                    
+                    <!-- Search -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="Search products..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Categories -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                        <select id="category-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Price Range -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="min-price" placeholder="Min" 
+                                class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                            <input type="number" id="max-price" placeholder="Max" 
+                                class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                    
+                    <!-- Sort -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                        <select id="sort-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                            <option value="created_at,desc">Newest First</option>
+                            <option value="price,asc">Price: Low to High</option>
+                            <option value="price,desc">Price: High to Low</option>
+                            <option value="name,asc">Name: A-Z</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="applyFilters()" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
+                        Apply Filters
+                    </button>
+                    <button onclick="clearFilters()" class="w-full mt-2 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Products Grid -->
+            <div class="lg:w-3/4">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">All Products</h2>
+                    <span id="product-count" class="text-gray-500">Loading...</span>
+                </div>
+                
+                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="col-span-full text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div id="pagination" class="mt-8 flex justify-center"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2026 ChattoShop. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let currentPage = 1;
+        let dropdownOpen = false;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadProducts();
+            updateCartUI();
+            checkAuth();
+            
+            document.getElementById('cart-btn').addEventListener('click', () => window.location.href = 'cart.html');
+            
+            document.getElementById('user-menu-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleDropdown();
+            });
+            
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('user-dropdown');
+                const btn = document.getElementById('user-menu-btn');
+                if (dropdown && btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('category')) {
+                document.getElementById('category-filter').value = urlParams.get('category');
+            }
+        });
+        
+        function toggleDropdown() {
+            dropdownOpen = !dropdownOpen;
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdownOpen) {
+                dropdown.classList.remove('hidden');
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        }
+        
+        function closeDropdown() {
+            dropdownOpen = false;
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+        }
+        
+        function checkAuth() {
+            const user = api.getUser();
+            const token = api.getToken();
+            const navAuth = document.getElementById('nav-auth');
+            const navUser = document.getElementById('nav-user');
+            
+            if (user && token) {
+                if (navAuth) navAuth.classList.add('hidden');
+                if (navUser) navUser.classList.remove('hidden');
+                
+                if (document.getElementById('user-name')) {
+                    document.getElementById('user-name').textContent = user.name || 'User';
+                }
+                if (document.getElementById('dropdown-user-name')) {
+                    document.getElementById('dropdown-user-name').textContent = user.name || 'User';
+                }
+                if (document.getElementById('dropdown-user-email')) {
+                    document.getElementById('dropdown-user-email').textContent = user.email || '';
+                }
+                if (user.avatar && document.getElementById('user-avatar')) {
+                    document.getElementById('user-avatar').src = api.getStorageUrl(user.avatar);
+                }
+                
+                // Role-based navigation
+                const dashboardLink = document.getElementById('dashboard-link');
+                const myProductsLink = document.getElementById('my-products-link');
+                const sellerLink = document.getElementById('seller-link');
+                const adminLink = document.getElementById('admin-link');
+                const navMyProducts = document.getElementById('nav-my-products');
+                
+                // Seller: Show My Products + Seller Dashboard, COMPLETELY HIDE Dashboard
+                if (user.role === 'seller') {
+                    if (myProductsLink) myProductsLink.classList.remove('hidden');
+                    if (myProductsLink) myProductsLink.classList.add('block');
+                    if (sellerLink) sellerLink.classList.remove('hidden');
+                    if (sellerLink) sellerLink.classList.add('block');
+                    if (dashboardLink) dashboardLink.classList.add('hidden');
+                    if (navMyProducts) navMyProducts.classList.remove('hidden');
+                    // COMPLETELY REMOVE dashboard link from dropdown for sellers
+                    if (dashboardLink) dashboardLink.remove();
+                }
+                // Admin/System Admin: Show Dashboard + Admin Panel
+                else if (user.role === 'system_admin' || user.role === 'admin') {
+                    if (adminLink) adminLink.classList.remove('hidden');
+                    if (adminLink) adminLink.classList.add('block');
+                    if (dashboardLink) dashboardLink.classList.remove('hidden');
+                }
+                // Customer: Show Dashboard only
+                else {
+                    if (dashboardLink) dashboardLink.classList.remove('hidden');
+                }
+            } else {
+                if (navAuth) navAuth.classList.remove('hidden');
+                if (navUser) navUser.classList.add('hidden');
+            }
+        }
+        
+        async function loadCategories() {
+            try {
+                const data = await api.get('/categories?status=1');
+                const categories = data.data || data;
+                const select = document.getElementById('category-filter');
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+        
+        async function loadProducts(page = 1) {
+            const grid = document.getElementById('products-grid');
+            currentPage = page;
+            
+            const params = new URLSearchParams();
+            params.append('status', 1);
+            params.append('page', page);
+            
+            const search = document.getElementById('search-input').value;
+            const category = document.getElementById('category-filter').value;
+            const minPrice = document.getElementById('min-price').value;
+            const maxPrice = document.getElementById('max-price').value;
+            const sort = document.getElementById('sort-filter').value;
+            
+            if (search) params.append('search', search);
+            if (category) params.append('category', category);
+            if (minPrice) params.append('min_price', minPrice);
+            if (maxPrice) params.append('max_price', maxPrice);
+            
+            const [sortField, sortOrder] = sort.split(',');
+            params.append('sort', sortField);
+            params.append('order', sortOrder);
+            params.append('per_page', 12);
+            
+            try {
+                const data = await api.get(`/products?${params.toString()}`);
+                const products = data.data || data;
+                const currentUser = api.getUser();
+                
+                document.getElementById('product-count').textContent = `${data.total || products.length} products`;
+                
+                if (products.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">No products found</div>';
+                    return;
+                }
+                
+                grid.innerHTML = products.map(product => {
+                    const isOwnProduct = currentUser && product.seller_id === currentUser.id;
+                    return `
+                    <div class="product-card bg-white rounded-lg shadow-md overflow-hidden transition duration-300 hover:shadow-lg">
+                        <a href="product-detail.html?id=${product.id}">
+                            <div class="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
+                                ${product.image ? 
+                                    `<img src="${api.getStorageUrl(product.image)}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                     <i class="fas fa-image text-4xl text-gray-400" style="display:none;"></i>` :
+                                    '<i class="fas fa-image text-4xl text-gray-400"></i>'
+                                }
+                            </div>
+                        </a>
+                        <div class="p-4">
+                            <a href="product-detail.html?id=${product.id}">
+                                <h3 class="font-semibold text-gray-800 mb-1 truncate">${product.name}</h3>
+                            </a>
+                            <p class="text-sm text-gray-500 mb-2">${product.category?.name || 'Uncategorized'}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-bold text-indigo-600">${api.formatCurrency(product.price)}</span>
+                                ${isOwnProduct ? 
+                                    '<span class="text-xs text-red-500"><i class="fas fa-exclamation-triangle mr-1"></i>Your Product</span>' :
+                                    `<button onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.image || ''}')" 
+                                             class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm">
+                                        <i class="fas fa-cart-plus mr-1"></i> Add
+                                    </button>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+                
+                renderPagination(data);
+            } catch (error) {
+                console.error('Error loading products:', error);
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-red-500">Error loading products</div>';
+            }
+        }
+        
+        function renderPagination(data) {
+            const pagination = document.getElementById('pagination');
+            if (!data.links || data.links.length <= 3) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let html = '<div class="flex gap-2">';
+            data.links.forEach(link => {
+                const active = link.active ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100';
+                const disabled = link.url ? '' : 'opacity-50 cursor-not-allowed';
+                html += `<button onclick="loadProducts(${link.url.split('page=')[1] || 1})" 
+                    class="px-4 py-2 rounded-lg border ${active} ${disabled}" ${!link.url ? 'disabled' : ''}>
+                    ${link.label}
+                </button>`;
+            });
+            html += '</div>';
+            pagination.innerHTML = html;
+        }
+        
+        function applyFilters() {
+            loadProducts(1);
+        }
+        
+        function clearFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('category-filter').value = '';
+            document.getElementById('min-price').value = '';
+            document.getElementById('max-price').value = '';
+            document.getElementById('sort-filter').value = 'created_at,desc';
+            loadProducts(1);
+        }
+        
+        function addToCart(id, name, price, image) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ id, name, price: parseFloat(price), image, quantity: 1 });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+            alert('Product added to cart!');
+        }
+        
+        function updateCartUI() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = count;
+        }
+        
+        function logout() {
+            api.removeToken();
+            api.removeUser();
+            localStorage.removeItem('cart');
+            closeDropdown();
+            window.location.href = 'index.html';
+        }
+        
+        window.logout = logout;
+    </script>
+</body>
+</html>

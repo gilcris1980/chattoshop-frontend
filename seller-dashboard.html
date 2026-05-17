@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Seller Dashboard - ChattoShop</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- NAVIGATION -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="flex justify-between items-center h-16">
+
+                <!-- LOGO -->
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-indigo-600">
+                        ChattoShop
+                    </a>
+
+                    <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                        Seller
+                    </span>
+                </div>
+
+                <!-- MENU -->
+                <div class="hidden md:flex items-center space-x-8">
+
+                    <a
+                        href="index.html"
+                        class="text-gray-700 hover:text-indigo-600 font-medium"
+                    >
+                        Home
+                    </a>
+
+                    <a
+                        href="products.html"
+                        class="text-gray-700 hover:text-indigo-600 font-medium"
+                    >
+                        Products
+                    </a>
+
+                    <a
+                        href="seller-dashboard.html"
+                        class="text-indigo-600 font-medium"
+                    >
+                        Seller Dashboard
+                    </a>
+
+                </div>
+
+                <!-- RIGHT -->
+                <div class="flex items-center space-x-4">
+
+                    <!-- CART -->
+                    <button
+                        id="cart-btn"
+                        class="relative p-2 text-gray-600 hover:text-indigo-600"
+                    >
+                        <i class="fas fa-shopping-cart text-xl"></i>
+
+                        <span
+                            id="cart-count"
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                        >
+                            0
+                        </span>
+                    </button>
+
+                    <!-- USER -->
+                    <div class="relative">
+
+                        <button
+                            id="user-menu-btn"
+                            class="flex items-center space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition"
+                        >
+                            <img
+                                id="user-avatar"
+                                src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff"
+                                class="w-8 h-8 rounded-full"
+                            />
+
+                            <span
+                                id="user-name"
+                                class="font-medium text-gray-700"
+                            >
+                                User
+                            </span>
+
+                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                        </button>
+
+                        <!-- DROPDOWN -->
+                        <div
+                            id="user-dropdown"
+                            class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50"
+                        >
+
+                            <div class="px-4 py-3 border-b">
+
+                                <p
+                                    id="dropdown-user-name"
+                                    class="font-medium text-gray-800"
+                                >
+                                    User Name
+                                </p>
+
+                                <p
+                                    id="dropdown-user-email"
+                                    class="text-sm text-gray-500"
+                                >
+                                    user@email.com
+                                </p>
+
+                            </div>
+
+                            <a
+                                href="profile.html"
+                                class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"
+                            >
+                                <i class="fas fa-user mr-2"></i>
+                                Profile
+                            </a>
+
+                            <a
+                                href="orders.html"
+                                class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"
+                            >
+                                <i class="fas fa-shopping-bag mr-2"></i>
+                                My Orders
+                            </a>
+
+                            <a
+                                href="seller-products.html"
+                                class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"
+                            >
+                                <i class="fas fa-box mr-2"></i>
+                                My Products
+                            </a>
+
+                            <button
+                                onclick="logout()"
+                                class="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-100 mt-1 pt-1"
+                            >
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+                                Logout
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- STATS -->
+        <div
+            id="stats-grid"
+            class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+        >
+        </div>
+
+        <!-- ORDERS -->
+        <div class="bg-white rounded-lg shadow p-6">
+
+            <h2 class="text-xl font-semibold mb-4">
+                My Orders (Products I Sell)
+            </h2>
+
+            <div
+                id="seller-orders-list"
+                class="space-y-4"
+            >
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="js/api.js"></script>
+
+    <script>
+
+    let cart =
+        JSON.parse(localStorage.getItem('cart')) || [];
+
+    let dropdownOpen = false;
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        async () => {
+
+            const user = api.getUser();
+            const token = api.getToken();
+
+            if (!user || !token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (user.role !== 'seller') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            document.getElementById('user-name').textContent =
+                user.name || 'User';
+
+            document.getElementById('dropdown-user-name').textContent =
+                user.name || 'User';
+
+            document.getElementById('dropdown-user-email').textContent =
+                user.email || '';
+
+            if (user.avatar) {
+
+                document.getElementById('user-avatar').src =
+                    api.getStorageUrl(user.avatar);
+
+            }
+
+            loadSellerStats();
+            loadSellerOrders();
+            updateCartUI();
+
+        }
+    );
+
+    // CART BUTTON
+    document
+        .getElementById('cart-btn')
+        .addEventListener('click', () => {
+
+            window.location.href = 'cart.html';
+
+        });
+
+    // USER DROPDOWN
+    document
+        .getElementById('user-menu-btn')
+        .addEventListener('click', (e) => {
+
+            e.stopPropagation();
+
+            dropdownOpen = !dropdownOpen;
+
+            document
+                .getElementById('user-dropdown')
+                .classList.toggle(
+                    'hidden',
+                    !dropdownOpen
+                );
+
+        });
+
+    // CLOSE DROPDOWN
+    document.addEventListener('click', (e) => {
+
+        const dropdown =
+            document.getElementById('user-dropdown');
+
+        const btn =
+            document.getElementById('user-menu-btn');
+
+        if (
+            dropdown &&
+            btn &&
+            !btn.contains(e.target) &&
+            !dropdown.contains(e.target)
+        ) {
+
+            dropdownOpen = false;
+
+            dropdown.classList.add('hidden');
+
+        }
+
+    });
+
+    async function loadSellerStats() {
+
+        try {
+
+            const response =
+                await api.get('/products/my');
+
+            let products = [];
+
+            if (Array.isArray(response)) {
+
+                products = response;
+
+            } else if (Array.isArray(response.data)) {
+
+                products = response.data;
+
+            } else if (
+                response.data &&
+                Array.isArray(response.data.data)
+            ) {
+
+                products = response.data.data;
+
+            }
+
+            const totalProducts =
+                products.length;
+
+            const activeProducts =
+                products.filter(
+                    p =>
+                        p.status === 'active' ||
+                        p.status === 1 ||
+                        p.status === true
+                ).length;
+
+            const totalStock =
+                products.reduce(
+                    (sum, p) =>
+                        sum + (parseInt(p.stock) || 0),
+                    0
+                );
+
+            const totalOrders =
+                products.reduce(
+                    (sum, p) =>
+                        sum + (parseInt(p.orders_count) || 0),
+                    0
+                );
+
+            document.getElementById('stats-grid').innerHTML = `
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p class="text-gray-500 text-sm">
+                        Total Products
+                    </p>
+
+                    <h3 class="text-3xl font-bold text-indigo-600 mt-2">
+                        ${totalProducts}
+                    </h3>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p class="text-gray-500 text-sm">
+                        Active Products
+                    </p>
+
+                    <h3 class="text-3xl font-bold text-green-600 mt-2">
+                        ${activeProducts}
+                    </h3>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p class="text-gray-500 text-sm">
+                        Total Stock
+                    </p>
+
+                    <h3 class="text-3xl font-bold text-blue-600 mt-2">
+                        ${totalStock}
+                    </h3>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <p class="text-gray-500 text-sm">
+                        Total Orders
+                    </p>
+
+                    <h3 class="text-3xl font-bold text-purple-600 mt-2">
+                        ${totalOrders}
+                    </h3>
+                </div>
+
+            `;
+
+        } catch (error) {
+
+            console.error(
+                'Error loading seller stats:',
+                error
+            );
+
+        }
+
+    }
+
+    async function loadSellerOrders() {
+
+        try {
+
+            const data =
+                await api.get('/orders');
+
+            const orders =
+                data.data || data;
+
+            if (!orders || orders.length === 0) {
+
+                document.getElementById(
+                    'seller-orders-list'
+                ).innerHTML = `
+
+                    <div class="text-center py-12 text-gray-500">
+
+                        <i class="fas fa-shopping-bag text-4xl mb-4"></i>
+
+                        <p>
+                            No orders for your products yet
+                        </p>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+            const statusColors = {
+
+                pending:
+                    'bg-yellow-100 text-yellow-800',
+
+                processing:
+                    'bg-blue-100 text-blue-800',
+
+                approved:
+                    'bg-blue-100 text-blue-800',
+
+                shipped:
+                    'bg-purple-100 text-purple-800',
+
+                delivered:
+                    'bg-green-100 text-green-800',
+
+                completed:
+                    'bg-green-100 text-green-800',
+
+                cancelled:
+                    'bg-red-100 text-red-800'
+
+            };
+
+            document.getElementById(
+                'seller-orders-list'
+            ).innerHTML = orders.map(order => {
+
+                const items =
+                    order.items || [];
+
+                const myItems =
+                    items.filter(
+                        item =>
+                            item.product?.seller_id ===
+                            api.getUser()?.id
+                    );
+
+                if (myItems.length === 0) return '';
+
+                return `
+
+                <div class="border rounded-lg p-4 hover:bg-gray-50">
+
+                    <div class="flex justify-between items-start mb-3">
+
+                        <div>
+
+                            <p class="font-semibold text-gray-800">
+                                Order #${order.id}
+                            </p>
+
+                            <p class="text-sm text-gray-500">
+                                Customer:
+                                ${order.user?.name || 'N/A'}
+                            </p>
+
+                            <p class="text-sm text-gray-500">
+                                ${new Date(order.created_at).toLocaleDateString()}
+                            </p>
+
+                        </div>
+
+                        <div class="text-right">
+
+                            <div class="mt-2">
+
+    <span class="px-3 py-1 rounded-full text-sm font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}">
+        ${order.status}
+    </span>
+
+    <div class="mt-2">
+
+        <select
+            onchange="updateOrderStatus(${order.id}, this.value)"
+            class="border rounded px-3 py-2 text-sm bg-white"
+        >
+
+            <option value="pending"
+                ${order.status === 'pending' ? 'selected' : ''}>
+                Pending
+            </option>
+
+            <option value="processing"
+                ${order.status === 'processing' ? 'selected' : ''}>
+                Processing
+            </option>
+
+            <option value="shipped"
+                ${order.status === 'shipped' ? 'selected' : ''}>
+                Shipped
+            </option>
+
+            <option value="delivered"
+                ${order.status === 'delivered' ? 'selected' : ''}>
+                Delivered
+            </option>
+
+            <option value="cancelled"
+                ${order.status === 'cancelled' ? 'selected' : ''}>
+                Cancelled
+            </option>
+
+        </select>
+
+    </div>
+
+</div>
+
+                            <p class="font-bold text-indigo-600 mt-1">
+                                ${api.formatCurrency(order.total_amount)}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="border-t pt-3">
+
+                        <p class="text-sm font-medium text-gray-600 mb-2">
+                            Products:
+                        </p>
+
+                        ${myItems.map(item => `
+
+                            <div class="flex justify-between text-sm py-1">
+
+                                <span>
+                                    ${item.product?.name || 'Product'}
+                                    x
+                                    ${item.quantity}
+                                </span>
+
+                                <span class="font-medium">
+                                    ${api.formatCurrency(
+                                        item.price * item.quantity
+                                    )}
+                                </span>
+
+                            </div>
+
+                        `).join('')}
+
+                    </div>
+
+                </div>
+
+                `;
+
+            }).join('');
+
+        } catch (error) {
+
+            console.error(
+                'Error loading orders:',
+                error
+            );
+
+        }
+
+    }
+
+    function updateCartUI() {
+
+        const count =
+            cart.reduce(
+                (sum, item) =>
+                    sum + item.quantity,
+                0
+            );
+
+        document.getElementById(
+            'cart-count'
+        ).textContent = count;
+
+    }
+
+    function logout() {
+
+        api.removeToken();
+        api.removeUser();
+
+        localStorage.removeItem('cart');
+
+        window.location.href = 'index.html';
+
+    }
+
+   window.logout = logout;
+
+async function updateOrderStatus(orderId, status) {
+
+    try {
+
+        await api.put(`/orders/${orderId}/status`, {
+            status: status
+        });
+
+        await loadSellerOrders();
+
+        alert('Order status updated successfully');
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert('Failed to update order status');
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

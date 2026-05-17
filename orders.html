@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - ChattoShop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css-all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-indigo-600">ChattoShop</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
+                    <a href="products.html" class="text-gray-700 hover:text-indigo-600 font-medium">Products</a>
+                    <!-- Seller: My Products link in navbar -->
+                    <a id="nav-my-products" href="seller-products.html" class="hidden text-gray-700 hover:text-indigo-600 font-medium">My Products</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition">
+                            <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" class="w-8 h-8 rounded-full">
+                            <span id="user-name" class="font-medium text-gray-700">User</span>
+                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                        </button>
+                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
+                            <div class="px-4 py-3 border-b">
+                                <p id="dropdown-user-name" class="font-medium text-gray-800">User Name</p>
+                                <p id="dropdown-user-email" class="text-sm text-gray-500">user@email.com</p>
+                            </div>
+                            <a href="profile.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-user mr-2"></i> Profile</a>
+                            <a href="orders.html" class="block px-4 py-2 text-gray-700 bg-indigo-50"><i class="fas fa-shopping-bag mr-2"></i> My Orders</a>
+                            
+                            <!-- Customer Only: Dashboard -->
+                            <a id="dashboard-link" href="dashboard.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a>
+                            
+                            <!-- Seller Only: My Products -->
+                            <a id="my-products-link" href="seller-products.html" class="hidden block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-box mr-2"></i> My Products</a>
+                            
+                            <!-- Seller Only: Seller Dashboard -->
+                            <a id="seller-link" href="seller-dashboard.html" class="hidden block px-4 py-2 text-blue-600 hover:bg-blue-50"><i class="fas fa-store mr-2"></i> Seller Dashboard</a>
+                            
+                            <!-- Admin/System Admin: Admin Panel -->
+                            <a id="admin-link" href="admin-dashboard.html" class="hidden block px-4 py-2 text-red-600 hover:bg-red-50"><i class="fas fa-shield-alt mr-2"></i> Admin Panel</a>
+                            
+                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-100 mt-1 pt-1">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">My Orders</h1>
+            <a href="products.html" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                Continue Shopping
+            </a>
+        </div>
+        
+        <!-- Orders List -->
+        <div id="orders-list" class="space-y-6">
+            <div class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div id="pagination" class="mt-8 flex justify-center"></div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        let dropdownOpen = false;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = api.getUser();
+            const token = api.getToken();
+            
+            if (!user || !token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('user-name').textContent = user.name || 'User';
+            document.getElementById('dropdown-user-name').textContent = user.name || 'User';
+            document.getElementById('dropdown-user-email').textContent = user.email || '';
+            
+            if (user.avatar) {
+                document.getElementById('user-avatar').src = api.getStorageUrl(user.avatar);
+            }
+            
+            // Seller: Show My Products + Seller Dashboard, COMPLETELY HIDE Dashboard
+            if (user.role === 'seller') {
+                if (myProductsLink) myProductsLink.classList.remove('hidden');
+                if (myProductsLink) myProductsLink.classList.add('block');
+                if (sellerLink) sellerLink.classList.remove('hidden');
+                if (sellerLink) sellerLink.classList.add('block');
+                if (dashboardLink) dashboardLink.classList.add('hidden');
+                if (navMyProducts) navMyProducts.classList.remove('hidden');
+                // COMPLETELY REMOVE dashboard link from dropdown for sellers
+                if (dashboardLink) dashboardLink.remove();
+            }
+            // Admin/System Admin: Show Dashboard + Admin Panel
+            else if (user.role === 'system_admin' || user.role === 'admin') {
+                if (adminLink) adminLink.classList.remove('hidden');
+                if (adminLink) adminLink.classList.add('block');
+                if (dashboardLink) dashboardLink.classList.remove('hidden');
+            }
+            // Customer: Show Dashboard only
+            else {
+                if (dashboardLink) dashboardLink.classList.remove('hidden');
+            }
+            
+            setupDropdown();
+            loadOrders();
+        });
+        
+        function setupDropdown() {
+            document.getElementById('user-menu-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownOpen = !dropdownOpen;
+                document.getElementById('user-dropdown').classList.toggle('hidden', !dropdownOpen);
+            });
+            
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('user-dropdown');
+                const btn = document.getElementById('user-menu-btn');
+                if (dropdown && btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdownOpen = false;
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+        
+        async function loadOrders() {
+            const user = api.getUser();
+            try {
+                const data = await api.get('/orders');
+                const orders = data.data || data;
+                
+                if (!orders || orders.length === 0) {
+                    document.getElementById('orders-list').innerHTML = `
+                        <div class="bg-white rounded-lg shadow p-12 text-center">
+                            <i class="fas fa-shopping-bag text-6xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500 text-lg mb-4">No orders yet</p>
+                            <a href="products.html" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 inline-block">Start Shopping</a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const isAdmin = user.role === 'system_admin' || user.role === 'admin';
+                const isSeller = user.role === 'seller';
+                const canUpdateStatus = isAdmin || isSeller;
+                
+                document.getElementById('orders-list').innerHTML = orders.map(order => {
+                    const items = order.items || [];
+                    const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                    
+                    return `
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <!-- Order Header -->
+                        <div class="bg-gray-50 px-6 py-4 border-b flex flex-wrap justify-between items-start gap-4">
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-800">Order #${order.id}</h3>
+                                <p class="text-sm text-gray-500">
+                                    ${isAdmin ? `Customer: <span class="font-medium">${order.user?.name || 'N/A'}</span>` : ''}
+                                    ${isSeller && order.user ? `<span class="font-medium">${order.user.name}</span>` : ''}
+                                    ${!isAdmin && !isSeller ? `Buyer: <span class="font-medium">${order.user?.name || 'You'}</span>` : ''}
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    Date: <span class="font-medium">${new Date(order.created_at).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    Payment: <span class="font-medium">${order.payment_method?.toUpperCase() || 'COD'}</span>
+                                </p>
+                                ${order.shipping_address ? `<p class="text-sm text-gray-500">Shipping: ${order.shipping_address}</p>` : ''}
+                            </div>
+                            <div class="text-right">
+                                <span class="px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(order.status)}">${order.status}</span>
+                                <p class="text-2xl font-bold text-indigo-600 mt-2">${api.formatCurrency(order.total_amount)}</p>
+                                ${canUpdateStatus && order.status !== 'cancelled' && order.status !== 'completed' ? `
+                                    <select id="status-select-${order.id}" class="mt-2 px-3 py-1 border rounded text-sm" onchange="updateOrderStatus(${order.id}, this.value)">
+                                        <option value="">Update Status</option>
+                                        ${order.status === 'pending' ? '<option value="processing">Processing</option>' : ''}
+                                        ${['processing', 'approved'].includes(order.status) ? '<option value="shipped">Shipped</option>' : ''}
+                                        ${order.status === 'shipped' ? '<option value="delivered">Delivered</option>' : ''}
+                                        ${order.status !== 'cancelled' ? '<option value="cancelled">Cancel</option>' : ''}
+                                    </select>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Order Items -->
+                        <div class="px-6 py-4">
+                            <h4 class="font-semibold text-gray-700 mb-3">Products:</h4>
+                            ${items.length > 0 ? items.map(item => `
+                                <div class="flex justify-between items-center py-3 border-b last:border-0">
+                                    <div class="flex-1">
+                                        <p class="font-medium text-gray-800">${item.product?.name || 'Product'}</p>
+                                        <p class="text-sm text-gray-500">Quantity: ${item.quantity}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-medium text-gray-800">${api.formatCurrency(item.price)}</p>
+                                        <p class="text-sm text-gray-500">Subtotal: ${api.formatCurrency(parseFloat(item.price) * item.quantity)}</p>
+                                    </div>
+                                </div>
+                            `).join('') : '<p class="text-gray-500 text-center py-4">No items found</p>'}
+                        </div>
+                        
+                        <!-- Order Summary -->
+                        <div class="bg-gray-50 px-6 py-4 border-t">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    ${order.notes ? `<p class="text-sm text-gray-500">Notes: ${order.notes}</p>` : ''}
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-500">Subtotal</p>
+                                    <p class="font-bold text-lg">${api.formatCurrency(subtotal)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+                
+                if (data.links && data.links.length > 3) {
+                    document.getElementById('pagination').innerHTML = '<div class="flex gap-2">' +
+                        data.links.map(link => {
+                            if (!link.url) return '';
+                            const page = link.url.split('page=')[1] || 1;
+                            return `<button onclick="loadPage(${page})" class="px-4 py-2 rounded border ${link.active ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}">${link.label}</button>`;
+                        }).join('') + '</div>';
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                document.getElementById('orders-list').innerHTML = '<p class="text-center py-8 text-red-500">Error loading orders</p>';
+            }
+        }
+        
+        function loadPage(page) {
+            loadOrdersWithPage(page);
+        }
+        
+        async function loadOrdersWithPage(page) {
+            try {
+                const data = await api.get(`/orders?page=${page}`);
+                renderOrders(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        function renderOrders(data) {
+            const orders = data.data || data;
+            
+            if (!orders || orders.length === 0) {
+                document.getElementById('orders-list').innerHTML = `
+                    <div class="bg-white rounded-lg shadow p-12 text-center">
+                        <i class="fas fa-shopping-bag text-6xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500 text-lg mb-4">No orders found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            document.getElementById('orders-list').innerHTML = orders.map(order => {
+                const items = order.items || [];
+                const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+                
+                return `
+                <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                    <div class="bg-gray-50 px-6 py-4 border-b flex flex-wrap justify-between items-start gap-4">
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800">Order #${order.id}</h3>
+                            <p class="text-sm text-gray-500">Customer: <span class="font-medium">${order.user?.name || 'N/A'}</span></p>
+                            <p class="text-sm text-gray-500">Date: <span class="font-medium">${new Date(order.created_at).toLocaleDateString('en-PH')}</span></p>
+                            <p class="text-sm text-gray-500">Payment: <span class="font-medium">${order.payment_method?.toUpperCase() || 'COD'}</span></p>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(order.status)}">${order.status}</span>
+                            <p class="text-2xl font-bold text-indigo-600 mt-2">${api.formatCurrency(order.total_amount)}</p>
+                        </div>
+                    </div>
+                    <div class="px-6 py-4">
+                        <h4 class="font-semibold text-gray-700 mb-3">Products:</h4>
+                        ${items.length > 0 ? items.map(item => `
+                            <div class="flex justify-between items-center py-3 border-b last:border-0">
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-800">${item.product?.name || 'Product'}</p>
+                                    <p class="text-sm text-gray-500">Quantity: ${item.quantity}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-gray-800">${api.formatCurrency(item.price)}</p>
+                                    <p class="text-sm text-gray-500">Subtotal: ${api.formatCurrency(parseFloat(item.price) * item.quantity)}</p>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-gray-500 text-center py-4">No items found</p>'}
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        function getStatusClass(status) {
+            const classes = {
+                'pending': 'bg-yellow-100 text-yellow-800',
+                'processing': 'bg-blue-100 text-blue-800',
+                'approved': 'bg-blue-100 text-blue-800',
+                'shipped': 'bg-purple-100 text-purple-800',
+                'delivered': 'bg-green-100 text-green-800',
+                'completed': 'bg-green-100 text-green-800',
+                'cancelled': 'bg-red-100 text-red-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+        
+        async function updateOrderStatus(orderId, newStatus) {
+            if (!newStatus) return;
+            
+            if (!confirm('Update order status to "' + newStatus + '"?')) {
+                document.getElementById('status-select-' + orderId).value = '';
+                return;
+            }
+            
+            try {
+                await api.put(`/orders/${orderId}/status`, { status: newStatus });
+                alert('Order status updated successfully');
+                loadOrders();
+            } catch (error) {
+                alert(error.message || 'Failed to update order status');
+                document.getElementById('status-select-' + orderId).value = '';
+            }
+        }
+        
+        function logout() {
+            api.removeToken();
+            api.removeUser();
+            localStorage.removeItem('cart');
+            window.location.href = 'index.html';
+        }
+        
+        window.logout = logout;
+        window.updateOrderStatus = updateOrderStatus;
+    </script>
+</body>
+</html>

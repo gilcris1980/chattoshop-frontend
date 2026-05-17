@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - ChattoShop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css-all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-indigo-600">ChattoShop</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Checkout Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Checkout</h1>
+        
+        <div id="toast" class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50"></div>
+        
+        <form id="checkout-form" class="flex flex-col lg:flex-row gap-8">
+            <!-- Shipping Info -->
+            <div class="lg:w-2/3">
+                <div class="bg-white rounded-lg shadow p-6 mb-6">
+                    <h3 class="font-semibold text-lg mb-4">Shipping Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="name" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="email" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" id="phone" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Shipping Address</label>
+                            <textarea id="address" rows="3" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Order Notes (Optional)</label>
+                            <textarea id="notes" rows="2"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="font-semibold text-lg mb-4">Payment Method</h3>
+                    <div class="flex items-center p-4 border border-indigo-600 bg-indigo-50 rounded-lg">
+                        <input type="radio" name="payment" value="cod" checked class="mr-3">
+                        <div>
+                            <p class="font-semibold">Cash on Delivery (COD)</p>
+                            <p class="text-sm text-gray-600">Pay when you receive your order</p>
+                        </div>
+                        <i class="fas fa-money-bill-wave ml-auto text-2xl text-indigo-600"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="lg:w-1/3">
+                <div class="bg-white rounded-lg shadow p-6 sticky top-24">
+                    <h3 class="font-semibold text-lg mb-4">Order Summary</h3>
+                    <div id="order-items" class="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                        <!-- Items loaded via JS -->
+                    </div>
+                    <div class="border-t pt-3 space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Subtotal</span>
+                            <span id="order-subtotal" class="font-semibold">₱0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Shipping</span>
+                            <span class="font-semibold text-green-600">Free</span>
+                        </div>
+                        <div class="border-t pt-2 flex justify-between">
+                            <span class="font-bold">Total</span>
+                            <span id="order-total" class="text-xl font-bold text-indigo-600">₱0.00</span>
+                        </div>
+                    </div>
+                    <button type="submit" id="place-order-btn"
+                        class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 mt-4">
+                        Place Order
+                    </button>
+                    <a href="cart.html" class="block text-center mt-4 text-gray-600 hover:text-gray-800">
+                        Back to Cart
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (cart.length === 0) {
+                window.location.href = 'cart.html';
+                return;
+            }
+            
+            const user = api.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('name').value = user.name || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('address').value = user.address || '';
+            
+            renderOrderSummary();
+        });
+        
+        function renderOrderSummary() {
+            const container = document.getElementById('order-items');
+            
+            container.innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-600">${item.name}</span>
+                        <span class="text-sm text-gray-500">x${item.quantity}</span>
+                    </div>
+                    <span class="font-semibold">${api.formatCurrency(item.price * item.quantity)}</span>
+                </div>
+            `).join('');
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('order-subtotal').textContent = api.formatCurrency(total);
+            document.getElementById('order-total').textContent = api.formatCurrency(total);
+        }
+        
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('place-order-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            
+            const items = cart.map(item => ({
+                product_id: item.id,
+                quantity: item.quantity
+            }));
+            
+            try {
+                const order = await api.post('/orders', {
+                    items,
+                    shipping_address: document.getElementById('address').value,
+                    notes: document.getElementById('notes').value
+                });
+                
+                localStorage.removeItem('cart');
+                showToast('Order placed successfully! Order ID: #' + order.order?.id, 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            } catch (error) {
+                showToast(error.message || 'Failed to place order', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Place Order';
+            }
+        });
+        
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 4000);
+        }
+    </script>
+</body>
+</html>

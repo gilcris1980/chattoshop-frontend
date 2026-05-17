@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ChattoShop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-indigo-600">ChattoShop</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
+                    <a href="products.html" class="text-gray-700 hover:text-indigo-600 font-medium">Products</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="cart-btn" class="relative p-2 text-gray-600 hover:text-indigo-600">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </button>
+                    <button id="notification-btn" class="relative p-2 text-gray-600 hover:text-indigo-600">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span id="notif-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    
+                    <!-- User Menu Button -->
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition">
+                            <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" class="w-8 h-8 rounded-full">
+                            <span id="user-name" class="font-medium text-gray-700">User</span>
+                            <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
+                            <div class="px-4 py-3 border-b">
+                                <p id="dropdown-user-name" class="font-medium text-gray-800">User Name</p>
+                                <p id="dropdown-user-email" class="text-sm text-gray-500">user@email.com</p>
+                            </div>
+                            <a href="profile.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
+                                <i class="fas fa-user mr-2"></i> Profile
+                            </a>
+                            <a href="orders.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
+                                <i class="fas fa-shopping-bag mr-2"></i> My Orders
+                            </a>
+                            <a href="dashboard.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
+                                <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                            </a>
+                            <div id="admin-link" class="hidden border-t border-gray-100 mt-1 pt-1">
+                                <a href="admin-dashboard.html" class="block px-4 py-2 text-red-600 hover:bg-red-50">
+                                    <i class="fas fa-shield-alt mr-2"></i> Admin Panel
+                                </a>
+                            </div>
+                            <div id="seller-link" class="hidden border-t border-gray-100 mt-1 pt-1">
+                                <a href="seller-dashboard.html" class="block px-4 py-2 text-blue-600 hover:bg-blue-50">
+                                    <i class="fas fa-store mr-2"></i> Seller Dashboard
+                                </a>
+                            </div>
+                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-100 mt-1 pt-1">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Stats -->
+        <div id="stats-grid" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <!-- Stats loaded via JS -->
+        </div>
+        
+        <!-- Admin Panel (Super Admin Only) -->
+        <div id="admin-panel" class="hidden mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold mb-4">Quick Admin Links</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <a href="admin-users.html" class="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
+                        <i class="fas fa-users text-2xl text-indigo-600 mb-2"></i>
+                        <p class="font-semibold">User Management</p>
+                    </a>
+                    <a href="orders.html?filter=all" class="p-4 bg-green-50 rounded-lg hover:bg-green-100 transition">
+                        <i class="fas fa-shopping-bag text-2xl text-green-600 mb-2"></i>
+                        <p class="font-semibold">All Orders</p>
+                    </a>
+                    <a href="products.html" class="p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
+                        <i class="fas fa-box text-2xl text-purple-600 mb-2"></i>
+                        <p class="font-semibold">Products</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seller Panel -->
+        <div id="seller-panel" class="hidden mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">My Products</h2>
+                    <a href="add-product.html" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Add Product</a>
+                </div>
+                <div id="seller-products" class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-3">Product</th>
+                                <th class="text-left py-3">Price</th>
+                                <th class="text-left py-3">Stock</th>
+                                <th class="text-left py-3">Status</th>
+                                <th class="text-left py-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table">
+                            <!-- Products loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Orders Section -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Recent Orders</h2>
+            <div id="orders-list" class="space-y-4">
+                <!-- Orders loaded via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let dropdownOpen = false;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = api.getUser();
+            const token = api.getToken();
+            
+            if (!user || !token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('user-name').textContent = user.name || 'User';
+            document.getElementById('dropdown-user-name').textContent = user.name || 'User';
+            document.getElementById('dropdown-user-email').textContent = user.email || '';
+            
+            if (user.avatar) {
+                document.getElementById('user-avatar').src = api.getStorageUrl(user.avatar);
+            }
+            
+            if (user.role === 'system_admin' || user.role === 'admin') {
+                document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('admin-link').classList.remove('hidden');
+                loadAdminStats();
+            }
+            
+            if (user.role === 'seller') {
+                document.getElementById('seller-panel').classList.remove('hidden');
+                document.getElementById('seller-link').classList.remove('hidden');
+                loadSellerProducts();
+            }
+            
+            loadOrders();
+            loadNotifications();
+            updateCartUI();
+            
+            document.getElementById('cart-btn').addEventListener('click', () => window.location.href = 'cart.html');
+        });
+        
+        document.getElementById('user-menu-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleDropdown();
+        });
+        
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('user-dropdown');
+            const btn = document.getElementById('user-menu-btn');
+            if (dropdown && btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+                closeDropdown();
+            }
+        });
+        
+        function toggleDropdown() {
+            dropdownOpen = !dropdownOpen;
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdownOpen) {
+                dropdown.classList.remove('hidden');
+            } else {
+                dropdown.classList.add('hidden');
+            }
+        }
+        
+        function closeDropdown() {
+            dropdownOpen = false;
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+        }
+        
+        async function loadAdminStats() {
+            try {
+                const stats = await api.get('/users/stats');
+                document.getElementById('stats-grid').innerHTML = `
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="bg-indigo-100 p-3 rounded-lg">
+                                <i class="fas fa-users text-2xl text-indigo-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-gray-500">Total Users</p>
+                                <p class="text-2xl font-bold">${stats.total_users}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="bg-green-100 p-3 rounded-lg">
+                                <i class="fas fa-store text-2xl text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-gray-500">Sellers</p>
+                                <p class="text-2xl font-bold">${stats.total_sellers}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="bg-blue-100 p-3 rounded-lg">
+                                <i class="fas fa-shopping-bag text-2xl text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-gray-500">Customers</p>
+                                <p class="text-2xl font-bold">${stats.total_customers}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="bg-red-100 p-3 rounded-lg">
+                                <i class="fas fa-user-shield text-2xl text-red-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-gray-500">Admins</p>
+                                <p class="text-2xl font-bold">${stats.total_super_admins}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        async function loadSellerProducts() {
+            try {
+                const data = await api.get('/products/my');
+                const products = data.data || data;
+                
+                if (products.length === 0) {
+                    document.getElementById('products-table').innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-500">No products yet. <a href="add-product.html" class="text-indigo-600 hover:underline">Add your first product</a></td></tr>';
+                    return;
+                }
+                
+                document.getElementById('products-table').innerHTML = products.map(p => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-3 font-medium">${p.name}</td>
+                        <td class="py-3">${api.formatCurrency(p.price)}</td>
+                        <td class="py-3">${p.stock}</td>
+                        <td class="py-3"><span class="px-2 py-1 rounded text-xs font-medium ${p.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${p.status ? 'Active' : 'Inactive'}</span></td>
+                        <td class="py-3">
+                            <a href="edit-product.html?id=${p.id}" class="text-indigo-600 hover:text-indigo-800 mr-3">Edit</a>
+                            <button onclick="deleteProduct(${p.id})" class="text-red-600 hover:text-red-800">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+        
+        async function loadOrders() {
+            try {
+                const data = await api.get('/orders');
+                const orders = data.data || data;
+                
+                if (!orders || orders.length === 0) {
+                    document.getElementById('orders-list').innerHTML = `
+                        <div class="text-center py-12">
+                            <i class="fas fa-shopping-bag text-6xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500 text-lg mb-4">No orders yet</p>
+                            <a href="products.html" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 inline-block">Start Shopping</a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const statusColors = {
+                    pending: 'bg-yellow-100 text-yellow-800',
+                    processing: 'bg-blue-100 text-blue-800',
+                    approved: 'bg-blue-100 text-blue-800',
+                    shipped: 'bg-purple-100 text-purple-800',
+                    delivered: 'bg-green-100 text-green-800',
+                    completed: 'bg-green-100 text-green-800',
+                    cancelled: 'bg-red-100 text-red-800'
+                };
+                
+                document.getElementById('orders-list').innerHTML = orders.slice(0, 5).map(order => `
+                    <div class="border rounded-lg p-4 flex justify-between items-center hover:bg-gray-50">
+                        <div>
+                            <p class="font-semibold text-gray-800">Order #${order.id}</p>
+                            <p class="text-sm text-gray-500">${new Date(order.created_at).toLocaleDateString()} - ${order.user?.name || 'You'}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-indigo-600">${api.formatCurrency(order.total_amount)}</p>
+                            <span class="px-2 py-1 rounded text-xs font-medium ${statusColors[order.status]}">${order.status}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+        
+        async function loadNotifications() {
+            try {
+                const data = await api.get('/notifications/unread-count');
+                const badge = document.getElementById('notif-badge');
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
+                    badge.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+        
+        function updateCartUI() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = count;
+        }
+        
+        function logout() {
+            api.removeToken();
+            api.removeUser();
+            localStorage.removeItem('cart');
+            window.location.href = 'index.html';
+        }
+        
+        async function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                try {
+                    await api.delete(`/products/${id}`);
+                    loadSellerProducts();
+                } catch (error) {
+                    alert(error.message || 'Failed to delete product');
+                }
+            }
+        }
+        
+        window.logout = logout;
+    </script>
+</body>
+</html>

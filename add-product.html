@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - ChattoShop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-indigo-600">ChattoShop</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-indigo-600">Dashboard</a>
+                    <button onclick="logout()" class="text-red-600">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Add Product Content -->
+    <div class="max-w-2xl mx-auto px-4 py-8">
+        <div id="toast" class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50"></div>
+        
+        <div class="bg-white rounded-lg shadow p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Add New Product</h1>
+            
+            <form id="product-form" class="space-y-4" enctype="multipart/form-data">
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden" id="image-preview-container">
+                        <i class="fas fa-image text-4xl text-gray-400"></i>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+                        <input type="file" id="image" accept="image/*"
+                            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        <p class="text-xs text-gray-500 mt-1">JPG, PNG, GIF up to 2MB</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
+                    <input type="text" id="name" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <select id="category_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Price (?) *</label>
+                        <input type="number" id="price" step="0.01" min="0" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Stock *</label>
+                        <input type="number" id="stock" min="0" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea id="description" rows="4" placeholder="Enter product description..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+                
+                <div>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="status" checked class="mr-2">
+                        <span class="text-sm font-medium text-gray-700">Active (visible to customers)</span>
+                    </label>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button type="submit" id="submit-btn"
+                        class="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700">
+                        <i class="fas fa-plus mr-2"></i> Add Product
+                    </button>
+                    <a href="dashboard.html" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = api.getUser();
+            const token = api.getToken();
+            
+            if (!user || !token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (user.role !== 'seller' && user.role !== 'system_admin' && user.role !== 'admin') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            loadCategories();
+        });
+        
+        async function loadCategories() {
+            try {
+                const data = await api.get('/categories?status=1');
+                const categories = data.data || data;
+                const select = document.getElementById('category_id');
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                showToast('Failed to load categories', 'error');
+            }
+        }
+        
+        document.getElementById('image').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('image-preview-container').innerHTML = 
+                        `<img src="${event.target.result}" class="w-full h-full object-cover">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        document.getElementById('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Adding...';
+            
+            const name = document.getElementById('name').value.trim();
+            const category_id = document.getElementById('category_id').value;
+            const price = document.getElementById('price').value;
+            const stock = document.getElementById('stock').value;
+            const description = document.getElementById('description').value.trim();
+            const status = document.getElementById('status').checked ? 1 : 0;
+            
+            if (!name || !price || !stock) {
+                showToast('Please fill in all required fields', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Product';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('name', name);
+            if (category_id) formData.append('category_id', category_id);
+            formData.append('price', price);
+            formData.append('stock', stock);
+            formData.append('description', description);
+            formData.append('status', status);
+            
+            const imageInput = document.getElementById('image');
+            if (imageInput.files.length > 0) {
+                formData.append('image', imageInput.files[0]);
+            }
+            
+            try {
+                const response = await api.upload('/products', formData);
+                showToast('Product added successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'seller-products.html';
+                }, 1500);
+            } catch (error) {
+                showToast(error.message || 'Failed to add product', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Product';
+            }
+        });
+        
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 4000);
+        }
+        
+        function logout() {
+            api.removeToken();
+            api.removeUser();
+            localStorage.removeItem('cart');
+            window.location.href = 'index.html';
+        }
+        
+        window.logout = logout;
+    </script>
+</body>
+</html>

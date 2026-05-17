@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - ChattoShop</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+
+    <!-- NAVBAR -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="flex justify-between items-center h-16">
+
+                <div class="flex items-center">
+                    <a href="index.html"
+                        class="text-2xl font-bold text-indigo-600">
+                        ChattoShop
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html"
+                        class="text-gray-700 hover:text-indigo-600 font-medium">
+                        Home
+                    </a>
+
+                    <a href="products.html"
+                        class="text-gray-700 hover:text-indigo-600 font-medium">
+                        Products
+                    </a>
+
+                    <a href="dashboard.html"
+                        class="text-gray-700 hover:text-indigo-600 font-medium">
+                        Dashboard
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <span id="nav-user-name"
+                        class="font-medium">
+                        User
+                    </span>
+
+                    <button onclick="logout()"
+                        class="text-red-600 hover:text-red-800">
+                        Logout
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">
+            My Profile
+        </h1>
+
+        <div id="toast"
+            class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            <!-- PROFILE FORM -->
+            <div class="md:col-span-2">
+
+                <div class="bg-white rounded-lg shadow p-6">
+
+                    <h2 class="text-xl font-semibold mb-4">
+                        Personal Information
+                    </h2>
+
+                    <form id="profile-form"
+                        class="space-y-4">
+
+                        <!-- AVATAR -->
+                        <div class="flex items-center gap-4 mb-6">
+
+                            <img id="avatar-preview"
+                                src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff"
+                                class="w-20 h-20 rounded-full object-cover border">
+
+                            <div>
+
+                                <input type="file"
+                                    id="avatar"
+                                    accept="image/*"
+                                    class="block w-full text-sm text-gray-500
+                                    file:mr-4
+                                    file:py-2
+                                    file:px-4
+                                    file:rounded-full
+                                    file:border-0
+                                    file:text-sm
+                                    file:font-semibold
+                                    file:bg-indigo-50
+                                    file:text-indigo-700
+                                    hover:file:bg-indigo-100">
+
+                            </div>
+
+                        </div>
+
+                        <!-- NAME -->
+                        <div>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Full Name
+                            </label>
+
+                            <input type="text"
+                                id="name"
+                                required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+
+                        </div>
+
+                        <!-- EMAIL -->
+                        <div>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Email
+                            </label>
+
+                            <input type="email"
+                                id="email"
+                                required
+                                readonly
+                                class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg">
+
+                        </div>
+
+                        <!-- PHONE -->
+                        <div>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Phone
+                            </label>
+
+                            <input type="text"
+                                id="phone"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+
+                        </div>
+
+                        <!-- ADDRESS -->
+                        <div>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Address
+                            </label>
+
+                            <textarea id="address"
+                                rows="3"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+
+                        </div>
+
+                        <!-- BUTTON -->
+                        <button type="submit"
+                            id="profile-submit-btn"
+                            class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700">
+
+                            Update Profile
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <!-- SIDE INFO -->
+            <div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+
+                    <h3 class="font-semibold mb-4">
+                        Account Info
+                    </h3>
+
+                    <div class="space-y-3">
+
+                        <div>
+                            <p class="text-sm text-gray-500">
+                                Role
+                            </p>
+
+                            <p id="user-role"
+                                class="font-medium">
+                                Customer
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-sm text-gray-500">
+                                Member Since
+                            </p>
+
+                            <p id="member-since"
+                                class="font-medium">
+                                -
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6 mt-6">
+
+                    <a href="dashboard.html"
+                        class="block text-center text-indigo-600 hover:text-indigo-800">
+
+                        <i class="fas fa-arrow-left mr-2"></i>
+
+                        Back to Dashboard
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="js/api.js"></script>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            const user = api.getUser();
+
+            const token = api.getToken();
+
+            if (!user || !token) {
+
+                window.location.href = 'login.html';
+
+                return;
+
+            }
+
+            loadUser(user);
+
+            await refreshUser();
+
+        });
+
+        function loadUser(user) {
+
+            document.getElementById('nav-user-name').textContent =
+                user.name || 'User';
+
+            document.getElementById('name').value =
+                user.name || '';
+
+            document.getElementById('email').value =
+                user.email || '';
+
+            document.getElementById('phone').value =
+                user.phone || '';
+
+            document.getElementById('address').value =
+                user.address || '';
+
+            document.getElementById('user-role').textContent =
+                user.role || 'customer';
+
+            if (user.created_at) {
+
+                document.getElementById('member-since').textContent =
+                    new Date(user.created_at).toLocaleDateString();
+
+            }
+
+            if (user.avatar) {
+
+                document.getElementById('avatar-preview').src =
+                    api.getStorageUrl(user.avatar)
+                    + '?t=' + new Date().getTime();
+
+            }
+
+        }
+
+        async function refreshUser() {
+
+            try {
+
+                const userData =
+                    await api.get('/profile');
+
+                api.setUser(userData);
+
+                loadUser(userData);
+
+            } catch (error) {
+
+                console.error(error);
+
+            }
+
+        }
+
+        // PREVIEW IMAGE
+        document.getElementById('avatar')
+            .addEventListener('change', (e) => {
+
+                const file = e.target.files[0];
+
+                if (!file) return;
+
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+
+                    document.getElementById(
+                        'avatar-preview'
+                    ).src = event.target.result;
+
+                };
+
+                reader.readAsDataURL(file);
+
+            });
+
+        // UPDATE PROFILE
+        document.getElementById('profile-form')
+            .addEventListener('submit', async (e) => {
+
+                e.preventDefault();
+
+                const submitBtn =
+                    document.getElementById(
+                        'profile-submit-btn'
+                    );
+
+                submitBtn.disabled = true;
+
+                submitBtn.innerHTML =
+                    'Updating...';
+
+                const formData = new FormData();
+
+                formData.append(
+                    'name',
+                    document.getElementById('name').value
+                );
+
+                formData.append(
+                    'phone',
+                    document.getElementById('phone').value
+                );
+
+                formData.append(
+                    'address',
+                    document.getElementById('address').value
+                );
+
+                formData.append(
+                    '_method',
+                    'PUT'
+                );
+
+                const avatarInput =
+                    document.getElementById('avatar');
+
+                if (avatarInput.files.length > 0) {
+
+                    formData.append(
+                        'avatar',
+                        avatarInput.files[0]
+                    );
+
+                }
+
+                try {
+
+                    const data =
+                        await api.upload(
+                            '/profile',
+                            formData
+                        );
+
+                    api.setUser(data.user);
+
+                    localStorage.setItem(
+                        'user',
+                        JSON.stringify(data.user)
+                    );
+
+                    loadUser(data.user);
+
+                    showToast(
+                        'Profile updated successfully!',
+                        'success'
+                    );
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    showToast(
+                        'Failed to update profile',
+                        'error'
+                    );
+
+                } finally {
+
+                    submitBtn.disabled = false;
+
+                    submitBtn.innerHTML =
+                        'Update Profile';
+
+                }
+
+            });
+
+        function showToast(message, type) {
+
+            const toast =
+                document.getElementById('toast');
+
+            toast.textContent = message;
+
+            toast.className =
+                `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 ${
+                    type === 'success'
+                    ? 'bg-green-500'
+                    : 'bg-red-500'
+                }`;
+
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+
+                toast.classList.add('hidden');
+
+            }, 3000);
+
+        }
+
+        function logout() {
+
+            api.removeToken();
+
+            api.removeUser();
+
+            localStorage.removeItem('cart');
+
+            window.location.href =
+                'login.html';
+
+        }
+
+    </script>
+
+</body>
+</html>
