@@ -1,15 +1,15 @@
 // Auto-detect backend URL based on environment
 const getApiBaseUrl = () => {
     const hostname = window.location.hostname;
-    
+
     if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
-       return 'https://chattoshop-api.onrender.com/api';
+        return 'https://chattoshop-api.onrender.com/api';
     }
-    
-    return 'https://chattoshop-backend-production.up.railway.app/api';
+
+    return 'https://chattoshop-api.onrender.com/api';
 };
 
-const API_BASE_URL = getApiBaseUrl();
+const API_BASE_URL = 'https://chattoshop-api.onrender.com/api';
 
 const formatCurrency = (amount) => {
     return '₱' + parseFloat(amount).toLocaleString('en-PH', {
