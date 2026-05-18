@@ -19,8 +19,17 @@ const formatCurrency = (amount) => {
 };
 
 const getStorageUrl = (path) => {
-    if (!path) return '';
-    return API_BASE_URL.replace('/api', '/storage') + '/' + path;
+
+    if (!path) {
+        return 'https://via.placeholder.com/300x300?text=No+Image';
+    }
+
+    // if already full URL
+    if (path.startsWith('http')) {
+        return path;
+    }
+
+    return 'https://chattoshop-api.onrender.com/storage/' + path;
 };
 
 const api = {
