@@ -32,7 +32,7 @@ const getStorageUrl = (path) => {
     // remove leading slash if naa
     path = path.replace(/^\/+/, '');
 
-    return `https://chattoshop-api.onrender.com/storage/${path}`;
+   return `https://chattoshop-api.onrender.com/${path}`;
 };
 
 const api = {
