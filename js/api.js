@@ -37,7 +37,7 @@ const getStorageUrl = (path) => {
 
 const api = {
     baseUrl: API_BASE_URL,
-    storageUrl: 'https://chattoshop-api.onrender.com/storage',
+    storageUrl: 'return `https://chattoshop-api.onrender.com/${path}`;',
     
     formatCurrency,
     
