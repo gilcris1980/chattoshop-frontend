@@ -24,12 +24,15 @@ const getStorageUrl = (path) => {
         return 'https://via.placeholder.com/300x300?text=No+Image';
     }
 
-    // if already full URL
+    // already full URL
     if (path.startsWith('http')) {
         return path;
     }
 
-    return 'https://chattoshop-api.onrender.com/storage/' + path;
+    // remove leading slash if naa
+    path = path.replace(/^\/+/, '');
+
+    return `https://chattoshop-api.onrender.com/storage/${path}`;
 };
 
 const api = {
