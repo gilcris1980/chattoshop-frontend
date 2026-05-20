@@ -19,18 +19,27 @@ const formatCurrency = (amount) => {
 };
 
 const getStorageUrl = (path) => {
-
     if (!path) {
         return 'https://via.placeholder.com/300x300?text=No+Image';
     }
 
+    // if full URL na
     if (path.startsWith('http')) {
         return path;
     }
 
+    // remove domain if naa
+    path = path.replace('https://chattoshop-api.onrender.com/', '');
+
+    // remove leading slash
     path = path.replace(/^\/+/, '');
 
-    return `https://chattoshop-api.onrender.com/${path}`;
+    // remove duplicate storage/
+    if (path.startsWith('storage/')) {
+        path = path.replace('storage/', '');
+    }
+
+    return `https://chattoshop-api.onrender.com/storage/${path}`;
 };
 
 const api = {
