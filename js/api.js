@@ -25,21 +25,24 @@ const getStorageUrl = (path) => {
 
     // if full URL na
     if (path.startsWith('http')) {
-        return path;
+        return encodeURI(path);
     }
 
     // remove domain if naa
     path = path.replace('https://chattoshop-api.onrender.com/', '');
 
+    // convert backslashes to slashes
+    path = path.replace(/\\/g, '/');
+
     // remove leading slash
     path = path.replace(/^\/+/, '');
 
-    // remove duplicate storage/
+    // remove duplicate storage
     if (path.startsWith('storage/')) {
         path = path.replace('storage/', '');
     }
 
-    return `https://chattoshop-api.onrender.com/storage/${path}`;
+    return encodeURI(`https://chattoshop-api.onrender.com/storage/${path}`);
 };
 
 const api = {
