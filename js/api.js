@@ -42,7 +42,7 @@ const getStorageUrl = (path) => {
         path = path.replace('storage/', '');
     }
 
-    return encodeURI(`https://chattoshop-api.onrender.com/${path}`);
+    return encodeURI(`https://chattoshop-api.onrender.com/storage/${path}`);
 };
 
 const api = {
