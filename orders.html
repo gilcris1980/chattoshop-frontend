@@ -199,6 +199,7 @@
                                         ${order.status === 'pending' ? '<option value="processing">Processing</option>' : ''}
                                         ${['processing', 'approved'].includes(order.status) ? '<option value="shipped">Shipped</option>' : ''}
                                         ${order.status === 'shipped' ? '<option value="delivered">Delivered</option>' : ''}
+                                        ${order.status === 'delivered' ? '<option value="completed">Completed</option>' : ''}
                                         ${order.status !== 'cancelled' ? '<option value="cancelled">Cancel</option>' : ''}
                                     </select>
                                 ` : ''}

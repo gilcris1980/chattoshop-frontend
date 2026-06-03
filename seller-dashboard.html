@@ -517,32 +517,12 @@
             onchange="updateOrderStatus(${order.id}, this.value)"
             class="border rounded px-3 py-2 text-sm bg-white"
         >
-
-            <option value="pending"
-                ${order.status === 'pending' ? 'selected' : ''}>
-                Pending
-            </option>
-
-            <option value="processing"
-                ${order.status === 'processing' ? 'selected' : ''}>
-                Processing
-            </option>
-
-            <option value="shipped"
-                ${order.status === 'shipped' ? 'selected' : ''}>
-                Shipped
-            </option>
-
-            <option value="delivered"
-                ${order.status === 'delivered' ? 'selected' : ''}>
-                Delivered
-            </option>
-
-            <option value="cancelled"
-                ${order.status === 'cancelled' ? 'selected' : ''}>
-                Cancelled
-            </option>
-
+            <option value="">Update Status</option>
+            ${order.status === 'pending' ? '<option value="processing">Processing</option>' : ''}
+            ${order.status === 'processing' ? '<option value="shipped">Shipped</option>' : ''}
+            ${order.status === 'shipped' ? '<option value="delivered">Delivered</option>' : ''}
+            ${order.status === 'delivered' ? '<option value="completed">Completed</option>' : ''}
+            ${!['completed', 'cancelled'].includes(order.status) ? '<option value="cancelled">Cancel</option>' : ''}
         </select>
 
     </div>
