@@ -200,9 +200,9 @@
                 </div>
                 <div class="text-center">
                     <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <span id="status-approved" class="text-xl font-bold text-blue-700">0</span>
+                        <span id="status-processing" class="text-xl font-bold text-blue-700">0</span>
                     </div>
-                    <p class="text-gray-500 text-sm">Approved</p>
+                    <p class="text-gray-500 text-sm">Processing</p>
                 </div>
                 <div class="text-center">
                     <div class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -264,7 +264,7 @@
                 // Update order status
                 if (data.order_stats) {
                     document.getElementById('status-pending').textContent = data.order_stats.pending || 0;
-                    document.getElementById('status-approved').textContent = data.order_stats.approved || 0;
+                    document.getElementById('status-processing').textContent = data.order_stats.processing || 0;
                     document.getElementById('status-shipped').textContent = data.order_stats.shipped || 0;
                     document.getElementById('status-completed').textContent = data.order_stats.completed || 0;
                     document.getElementById('status-cancelled').textContent = data.order_stats.cancelled || 0;
@@ -320,7 +320,9 @@
             const classes = {
                 'pending': 'bg-yellow-100 text-yellow-700',
                 'approved': 'bg-blue-100 text-blue-700',
+                'processing': 'bg-blue-100 text-blue-700',
                 'shipped': 'bg-purple-100 text-purple-700',
+                'delivered': 'bg-green-100 text-green-700',
                 'completed': 'bg-green-100 text-green-700',
                 'cancelled': 'bg-red-100 text-red-700'
             };
