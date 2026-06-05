@@ -363,7 +363,14 @@
                 closeModal();
                 loadUsers(currentPage);
             } catch (error) {
-                showToast(error.message || 'Failed to save user', 'error');
+                let msg = error.message || 'Failed to save user';
+                if (error.data && error.data.errors) {
+                    const firstField = Object.values(error.data.errors)[0];
+                    if (firstField && firstField.length > 0) {
+                        msg = firstField[0];
+                    }
+                }
+                showToast(msg, 'error');
             }
         }
         

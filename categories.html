@@ -395,7 +395,11 @@
                 loadCategories(currentPage);
                 loadStats();
             } catch (error) {
-                showToast(error.message || 'Failed to save category', 'error');
+                let msg = error.message || 'Failed to save category';
+                if (error.data && error.data.error) {
+                    msg = error.data.error;
+                }
+                showToast(msg, 'error');
             }
         }
         
