@@ -139,7 +139,7 @@
                                 Profile
                             </a>
 
-                            <a
+                            <a id="my-orders-link"
                                 href="orders.html"
                                 class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"
                             >
@@ -246,6 +246,9 @@
             loadSellerStats();
             loadSellerOrders();
             updateCartUI();
+
+            document.getElementById('cart-btn')?.classList.add('hidden');
+            document.getElementById('my-orders-link')?.classList.add('hidden');
 
         }
     );

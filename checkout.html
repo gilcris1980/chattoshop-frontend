@@ -124,6 +124,11 @@
                 window.location.href = 'login.html';
                 return;
             }
+
+            if (user.role !== 'customer') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
             
             document.getElementById('name').value = user.name || '';
             document.getElementById('email').value = user.email || '';

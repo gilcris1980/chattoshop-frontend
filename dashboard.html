@@ -50,7 +50,7 @@
                             <a href="profile.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
                                 <i class="fas fa-user mr-2"></i> Profile
                             </a>
-                            <a href="orders.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
+                            <a id="my-orders-link" href="orders.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
                                 <i class="fas fa-shopping-bag mr-2"></i> My Orders
                             </a>
                             <a href="dashboard.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50">
@@ -165,12 +165,16 @@
                 document.getElementById('admin-panel').classList.remove('hidden');
                 document.getElementById('admin-link').classList.remove('hidden');
                 loadAdminStats();
+                document.getElementById('cart-btn')?.classList.add('hidden');
+                document.getElementById('my-orders-link')?.classList.add('hidden');
             }
             
             if (user.role === 'seller') {
                 document.getElementById('seller-panel').classList.remove('hidden');
                 document.getElementById('seller-link').classList.remove('hidden');
                 loadSellerProducts();
+                document.getElementById('cart-btn')?.classList.add('hidden');
+                document.getElementById('my-orders-link')?.classList.add('hidden');
             }
             
             loadOrders();

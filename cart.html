@@ -82,6 +82,11 @@
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         
         document.addEventListener('DOMContentLoaded', () => {
+            const user = api.getUser();
+            if (user && user.role !== 'customer') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
             renderCart();
             updateCartUI();
             document.getElementById('cart-btn').addEventListener('click', () => window.location.href = 'cart.html');

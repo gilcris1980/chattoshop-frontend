@@ -220,6 +220,8 @@ function setupRoleNavigation(user) {
     const sellerLink = document.getElementById('seller-link');
     const adminLink = document.getElementById('admin-link');
     const navMyProducts = document.getElementById('nav-my-products');
+    const cartBtn = document.getElementById('cart-btn');
+    const myOrdersLink = document.getElementById('my-orders-link');
 
     // RESET
     dashboardLink?.classList.add('hidden');
@@ -234,6 +236,8 @@ function setupRoleNavigation(user) {
         myProductsLink?.classList.remove('hidden');
         sellerLink?.classList.remove('hidden');
         navMyProducts?.classList.remove('hidden');
+        cartBtn?.classList.add('hidden');
+        myOrdersLink?.classList.add('hidden');
 
     }
 
@@ -245,6 +249,8 @@ function setupRoleNavigation(user) {
 
         dashboardLink?.classList.remove('hidden');
         adminLink?.classList.remove('hidden');
+        cartBtn?.classList.add('hidden');
+        myOrdersLink?.classList.add('hidden');
 
     }
 
@@ -356,12 +362,17 @@ async function loadProducts() {
                             ${api.formatCurrency(product.price)}
                         </span>
 
-                        <button
-                            onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.image || ''}')"
-                            class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
-                        >
-                            Add
-                        </button>
+                        ${(() => {
+                            const user = api.getUser();
+                            if (user && user.role !== 'customer') return '';
+                            return `
+                            <button
+                                onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.image || ''}')"
+                                class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
+                            >
+                                Add
+                            </button>`;
+                        })()}
 
                     </div>
 

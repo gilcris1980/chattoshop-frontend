@@ -94,6 +94,11 @@
                 window.location.href = 'login.html';
                 return;
             }
+
+            if (user.role !== 'customer') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
             
             document.getElementById('user-name').textContent = user.name || 'User';
             document.getElementById('dropdown-user-name').textContent = user.name || 'User';

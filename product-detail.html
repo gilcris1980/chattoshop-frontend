@@ -43,7 +43,7 @@
                                     <p id="dropdown-user-email" class="text-sm text-gray-500">user@email.com</p>
                                 </div>
                                 <a href="profile.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-user mr-2"></i> Profile</a>
-                                <a href="orders.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-shopping-bag mr-2"></i> My Orders</a>
+                                <a id="my-orders-link" href="orders.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-shopping-bag mr-2"></i> My Orders</a>
                                 <a id="dashboard-link" href="dashboard.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a>
                                 <a id="my-products-link" href="seller-products.html" class="hidden block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-box mr-2"></i> My Products</a>
                                 <a id="seller-link" href="seller-dashboard.html" class="hidden block px-4 py-2 text-blue-600 hover:bg-blue-50"><i class="fas fa-store mr-2"></i> Seller Dashboard</a>
@@ -204,6 +204,9 @@
                 } else if (!currentUser) {
                     // Not logged in - hide customer controls
                     document.getElementById('customer-controls').classList.add('hidden');
+                } else if (currentUser.role !== 'customer') {
+                    // Seller/Admin/System Admin - hide customer controls
+                    document.getElementById('customer-controls').classList.add('hidden');
                 } else if (product.stock <= 0) {
                     // Out of stock
                     document.getElementById('add-to-cart-btn').disabled = true;
@@ -241,6 +244,7 @@
                 const sellerLink = document.getElementById('seller-link');
                 const adminLink = document.getElementById('admin-link');
                 const navMyProducts = document.getElementById('nav-my-products');
+                const myOrdersLink = document.getElementById('my-orders-link');
                 
                 if (user.role === 'seller') {
                     if (myProductsLink) { myProductsLink.classList.remove('hidden'); myProductsLink.classList.add('block'); }
@@ -248,9 +252,13 @@
                     if (dashboardLink) dashboardLink.classList.add('hidden');
                     if (dashboardLink) dashboardLink.remove();
                     if (navMyProducts) navMyProducts.classList.remove('hidden');
+                    if (myOrdersLink) myOrdersLink.classList.add('hidden');
+                    document.getElementById('cart-btn')?.classList.add('hidden');
                 } else if (user.role === 'system_admin' || user.role === 'admin') {
                     if (adminLink) { adminLink.classList.remove('hidden'); adminLink.classList.add('block'); }
                     if (dashboardLink) dashboardLink.classList.remove('hidden');
+                    if (myOrdersLink) myOrdersLink.classList.add('hidden');
+                    document.getElementById('cart-btn')?.classList.add('hidden');
                 } else {
                     if (dashboardLink) dashboardLink.classList.remove('hidden');
                 }
