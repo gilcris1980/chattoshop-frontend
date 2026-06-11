@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - ChattoShop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+
+    <div class="w-full max-w-md">
+
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+
+            <!-- HEADER -->
+            <div class="text-center mb-8">
+
+                <a href="./index.html" class="text-3xl font-bold text-indigo-600">
+                    ChattoShop
+                </a>
+
+                <p class="text-gray-600 mt-2">
+                    Email Verification
+                </p>
+
+            </div>
+
+            <!-- LOADING STATE -->
+            <div id="loading-state" class="text-center py-8">
+
+                <i class="fas fa-spinner fa-spin text-4xl text-indigo-600 mb-4"></i>
+
+                <p class="text-gray-600">Verifying your email...</p>
+
+            </div>
+
+            <!-- SUCCESS STATE -->
+            <div id="success-state" class="hidden text-center py-8">
+
+                <div class="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+
+                    <i class="fas fa-check-circle text-3xl text-green-600"></i>
+
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Email Verified!</h2>
+
+                <p class="text-gray-600 mb-6">
+                    Your email has been successfully verified. You can now access all features.
+                </p>
+
+                <a href="./login.html"
+                    class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200">
+
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+
+                    Go to Login
+
+                </a>
+
+            </div>
+
+            <!-- ALREADY VERIFIED STATE -->
+            <div id="already-verified-state" class="hidden text-center py-8">
+
+                <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+
+                    <i class="fas fa-info-circle text-3xl text-blue-600"></i>
+
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Already Verified</h2>
+
+                <p class="text-gray-600 mb-6">
+                    Your email is already verified. You can proceed to login.
+                </p>
+
+                <a href="./login.html"
+                    class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200">
+
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+
+                    Go to Login
+
+                </a>
+
+            </div>
+
+            <!-- ERROR STATE -->
+            <div id="error-state" class="hidden text-center py-8">
+
+                <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+
+                    <i class="fas fa-exclamation-triangle text-3xl text-red-600"></i>
+
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Verification Failed</h2>
+
+                <p id="error-message" class="text-gray-600 mb-6">
+                    The verification link is invalid or expired.
+                </p>
+
+                <p class="text-gray-500 text-sm mb-4">
+                    Please log in to request a new verification email.
+                </p>
+
+                <a href="./login.html"
+                    class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200">
+
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+
+                    Go to Login
+
+                </a>
+
+            </div>
+
+            <!-- UNVERIFIED STATE (resend) -->
+            <div id="unverified-state" class="hidden text-center py-8">
+
+                <div class="w-16 h-16 mx-auto mb-4 bg-yellow-100 rounded-full flex items-center justify-center">
+
+                    <i class="fas fa-envelope text-3xl text-yellow-600"></i>
+
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Verify Your Email</h2>
+
+                <p class="text-gray-600 mb-6">
+                    Please verify your email before using your account.
+                </p>
+
+                <button
+                    id="resend-btn"
+                    class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200">
+
+                    <i class="fas fa-paper-plane mr-2"></i>
+
+                    Resend Verification Email
+
+                </button>
+
+                <p id="resend-message" class="text-sm mt-4 hidden"></p>
+
+                <div class="mt-6">
+
+                    <a href="./login.html" class="text-indigo-600 hover:text-indigo-800 font-medium">
+
+                        <i class="fas fa-arrow-left mr-1"></i>
+
+                        Back to Login
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TOAST -->
+        <div id="toast" class="hidden fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50"></div>
+
+    </div>
+
+    <script src="./js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const params = new URLSearchParams(window.location.search);
+
+            const verified = params.get('verified');
+            const error = params.get('error');
+            const token = localStorage.getItem('token');
+
+            const loadingState = document.getElementById('loading-state');
+            const successState = document.getElementById('success-state');
+            const alreadyVerifiedState = document.getElementById('already-verified-state');
+            const errorState = document.getElementById('error-state');
+            const unverifiedState = document.getElementById('unverified-state');
+
+            if (verified === '1') {
+
+                loadingState.classList.add('hidden');
+                successState.classList.remove('hidden');
+
+            } else if (error) {
+
+                loadingState.classList.add('hidden');
+                document.getElementById('error-message').textContent =
+                    error === 'invalid' ? 'The verification link is invalid or expired.' : 'Verification failed.';
+                errorState.classList.remove('hidden');
+
+            } else if (token) {
+
+                loadingState.classList.add('hidden');
+                unverifiedState.classList.remove('hidden');
+
+            } else {
+
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+
+            }
+
+            // =========================
+            // RESEND VERIFICATION
+            // =========================
+
+            const resendBtn = document.getElementById('resend-btn');
+            const resendMessage = document.getElementById('resend-message');
+
+            if (resendBtn) {
+
+                resendBtn.addEventListener('click', async () => {
+
+                    resendBtn.disabled = true;
+                    resendBtn.innerHTML = 'Sending...';
+                    resendMessage.classList.add('hidden');
+
+                    try {
+
+                        const data = await api.post('/email/verification-notification');
+
+                        resendMessage.textContent = 'Verification email sent! Check your inbox.';
+                        resendMessage.className = 'text-sm mt-4 text-green-600';
+
+                    } catch (error) {
+
+                        const msg = error.data?.message || error.message || 'Failed to send verification email';
+
+                        resendMessage.textContent = msg;
+                        resendMessage.className = 'text-sm mt-4 text-red-600';
+
+                    } finally {
+
+                        resendBtn.disabled = false;
+                        resendBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Resend Verification Email';
+                        resendMessage.classList.remove('hidden');
+
+                    }
+
+                });
+
+            }
+
+        });
+    </script>
+</body>
+</html>
