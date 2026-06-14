@@ -115,6 +115,12 @@
                 return;
             }
             
+            if (user.role === 'seller' && user.seller_status === 'pending') {
+                showToast('Your seller account is awaiting administrator approval.', 'error');
+                setTimeout(() => { window.location.href = 'seller-dashboard.html'; }, 2000);
+                return;
+            }
+            
             loadCategories();
         });
         
@@ -183,12 +189,16 @@
             
             try {
                 const response = await api.upload('/products', formData);
-                showToast('Product added successfully!', 'success');
+                const user = api.getUser();
+                const msg = user && (user.role === 'system_admin' || user.role === 'admin')
+                    ? 'Product created successfully!'
+                    : 'Product submitted successfully and awaiting admin approval.';
+                showToast(msg, 'success');
                 setTimeout(() => {
                     window.location.href = 'seller-products.html';
                 }, 1500);
             } catch (error) {
-                showToast(error.message || 'Failed to add product', 'error');
+                showToast(error.message || 'Add Product Failed. Data was not saved.', 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Product';
             }

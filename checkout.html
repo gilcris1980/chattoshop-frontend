@@ -126,7 +126,12 @@
             }
 
             if (user.role !== 'customer') {
-                window.location.href = 'dashboard.html';
+                if (user.role === 'seller') {
+                    showToast('Sellers cannot purchase products.', 'error');
+                    setTimeout(() => { window.location.href = 'seller-dashboard.html'; }, 1500);
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
                 return;
             }
             

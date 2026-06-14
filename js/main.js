@@ -258,6 +258,7 @@ function setupRoleNavigation(user) {
     else {
 
         dashboardLink?.classList.remove('hidden');
+        myOrdersLink?.classList.add('hidden');
 
     }
 

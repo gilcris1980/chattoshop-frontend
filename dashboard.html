@@ -132,7 +132,7 @@
         
         <!-- Orders Section -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-semibold mb-4">Recent Orders</h2>
+            <h2 class="text-xl font-semibold mb-4">My Orders</h2>
             <div id="orders-list" class="space-y-4">
                 <!-- Orders loaded via JS -->
             </div>
@@ -174,6 +174,10 @@
                 document.getElementById('seller-link').classList.remove('hidden');
                 loadSellerProducts();
                 document.getElementById('cart-btn')?.classList.add('hidden');
+                document.getElementById('my-orders-link')?.classList.add('hidden');
+            }
+            
+            if (user.role === 'customer') {
                 document.getElementById('my-orders-link')?.classList.add('hidden');
             }
             
@@ -320,7 +324,7 @@
                     cancelled: 'bg-red-100 text-red-800'
                 };
                 
-                document.getElementById('orders-list').innerHTML = orders.slice(0, 5).map(order => `
+                document.getElementById('orders-list').innerHTML = orders.map(order => `
                     <div class="border rounded-lg p-4 flex justify-between items-center hover:bg-gray-50">
                         <div>
                             <p class="font-semibold text-gray-800">Order #${order.id}</p>

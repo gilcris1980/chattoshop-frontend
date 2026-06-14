@@ -28,8 +28,8 @@
             <a href="orders.html?filter=all" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
                 <i class="fas fa-shopping-bag mr-3"></i> Orders
             </a>
-            <a href="products.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
-                <i class="fas fa-box mr-3"></i> Products
+            <a href="admin-products.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
+                <i class="fas fa-check-double mr-3"></i> Product Approval
             </a>
             <div class="border-t border-gray-700 mt-4 pt-4">
                 <a href="dashboard.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
@@ -87,6 +87,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -94,7 +95,7 @@
                     </thead>
                     <tbody id="users-table" class="divide-y divide-gray-200">
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center">
+                            <td colspan="7" class="px-6 py-12 text-center">
                                 <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
                             </td>
                         </tr>
@@ -213,6 +214,11 @@
                 return;
             }
             
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('filter') === 'seller-pending') {
+                document.getElementById('role-filter').value = 'seller';
+            }
+            
             loadUsers();
         });
         
@@ -236,6 +242,11 @@
                     role: role
                 });
                 
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('filter') === 'seller-pending') {
+                    params.append('seller_status', 'pending');
+                }
+                
                 const data = await api.get(`/admin/users?${params.toString()}`);
                 renderUsers(data);
                 renderPagination(data);
@@ -251,7 +262,7 @@
             if (users.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                             No users found
                         </td>
                     </tr>
@@ -259,7 +270,21 @@
                 return;
             }
             
-            tbody.innerHTML = users.map(user => `
+            tbody.innerHTML = users.map(user => {
+                const sellerStatusBadge = user.role === 'seller' && user.seller_status ? `
+                    <span class="px-2 py-1 rounded text-xs font-medium ${getSellerStatusClass(user.seller_status)}">${user.seller_status}</span>
+                ` : '-';
+                
+                const sellerActions = user.role === 'seller' && user.seller_status === 'pending' ? `
+                    <button onclick="approveSeller(${user.id})" class="text-green-600 hover:text-green-800 mr-2" title="Approve Seller">
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                    <button onclick="rejectSeller(${user.id})" class="text-red-600 hover:text-red-800 mr-2" title="Reject Seller">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                ` : '';
+
+                return `
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4">
                         <div class="flex items-center">
@@ -272,9 +297,11 @@
                     <td class="px-6 py-4">
                         <span class="px-2 py-1 rounded text-xs font-medium ${getRoleClass(user.role)}">${user.role.replace('_', ' ')}</span>
                     </td>
+                    <td class="px-6 py-4">${sellerStatusBadge}</td>
                     <td class="px-6 py-4 text-gray-600">${user.phone || '-'}</td>
                     <td class="px-6 py-4 text-gray-600">${new Date(user.created_at).toLocaleDateString()}</td>
                     <td class="px-6 py-4">
+                        ${sellerActions}
                         ${user.role !== 'system_admin' ? `
                             <button onclick="openEditModal(${user.id})" class="text-indigo-600 hover:text-indigo-800 mr-3">
                                 <i class="fas fa-edit"></i>
@@ -285,7 +312,7 @@
                         ` : '<span class="text-gray-400 text-sm">Protected</span>'}
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
         
         function renderPagination(data) {
@@ -404,6 +431,35 @@
             } catch (error) {
                 showToast(error.message || 'Failed to delete user', 'error');
                 closeDeleteModal();
+            }
+        }
+        
+        function getSellerStatusClass(status) {
+            const classes = {
+                'pending': 'bg-yellow-100 text-yellow-700',
+                'approved': 'bg-green-100 text-green-700',
+                'rejected': 'bg-red-100 text-red-700'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-700';
+        }
+        
+        async function approveSeller(id) {
+            try {
+                await api.put(`/admin/users/${id}/approve-seller`);
+                showToast('Seller approved successfully', 'success');
+                loadUsers(currentPage);
+            } catch (error) {
+                showToast(error.message || 'Failed to approve seller', 'error');
+            }
+        }
+        
+        async function rejectSeller(id) {
+            try {
+                await api.put(`/admin/users/${id}/reject-seller`);
+                showToast('Seller rejected successfully', 'success');
+                loadUsers(currentPage);
+            } catch (error) {
+                showToast(error.message || 'Failed to reject seller', 'error');
             }
         }
         

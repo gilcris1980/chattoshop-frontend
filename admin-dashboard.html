@@ -31,8 +31,8 @@
             <a href="orders.html?filter=all" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
                 <i class="fas fa-shopping-bag mr-3"></i> Orders
             </a>
-            <a href="products.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
-                <i class="fas fa-box mr-3"></i> Products
+            <a href="admin-products.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
+                <i class="fas fa-check-double mr-3"></i> Product Approval
             </a>
             <a href="categories.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
                 <i class="fas fa-tags mr-3"></i> Categories
@@ -121,7 +121,7 @@
         </div>
 
         <!-- Second Row Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             <div class="bg-yellow-50 border border-yellow-200 rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -133,6 +133,28 @@
                     </div>
                 </div>
             </div>
+            <a href="admin-users.html?filter=seller-pending" class="bg-yellow-50 border border-yellow-200 rounded-lg shadow p-6 hover:shadow-lg transition block">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-700 text-sm">Pending Seller Approvals</p>
+                        <p id="stat-pending-sellers" class="text-3xl font-bold text-yellow-800">0</p>
+                    </div>
+                    <div class="bg-yellow-200 p-3 rounded-lg">
+                        <i class="fas fa-user-check text-2xl text-yellow-600"></i>
+                    </div>
+                </div>
+            </a>
+            <a href="admin-products.html?filter=pending" class="bg-yellow-50 border border-yellow-200 rounded-lg shadow p-6 hover:shadow-lg transition block">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-700 text-sm">Pending Product Approvals</p>
+                        <p id="stat-pending-products" class="text-3xl font-bold text-yellow-800">0</p>
+                    </div>
+                    <div class="bg-yellow-200 p-3 rounded-lg">
+                        <i class="fas fa-box text-2xl text-yellow-600"></i>
+                    </div>
+                </div>
+            </a>
             <div class="bg-indigo-50 border border-indigo-200 rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -278,6 +300,8 @@
                 document.getElementById('stat-products').textContent = data.total_products || 0;
                 document.getElementById('stat-categories').textContent = data.total_categories || 0;
                 document.getElementById('stat-pending').textContent = data.pending_orders || 0;
+                document.getElementById('stat-pending-sellers').textContent = data.pending_sellers || 0;
+                document.getElementById('stat-pending-products').textContent = data.pending_products || 0;
                 document.getElementById('stat-sellers').textContent = data.user_stats?.sellers || 0;
                 document.getElementById('stat-customers').textContent = data.user_stats?.customers || 0;
                 

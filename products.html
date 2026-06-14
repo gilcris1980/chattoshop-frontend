@@ -280,9 +280,10 @@
                     if (cartBtn) cartBtn.classList.add('hidden');
                     if (myOrdersLink) myOrdersLink.classList.add('hidden');
                 }
-                // Customer: Show Dashboard only
+                // Customer: Show Dashboard only, hide My Orders (dashboard is the source of truth)
                 else {
                     if (dashboardLink) dashboardLink.classList.remove('hidden');
+                    if (myOrdersLink) myOrdersLink.classList.add('hidden');
                 }
             } else {
                 if (navAuth) navAuth.classList.remove('hidden');

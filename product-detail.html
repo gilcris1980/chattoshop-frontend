@@ -107,6 +107,12 @@
                         </div>
                     </div>
                     
+                    <!-- Seller Purchase Warning -->
+                    <div id="seller-purchase-warning" class="hidden mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+                        <i class="fas fa-exclamation-triangle text-2xl text-yellow-600 mb-2"></i>
+                        <p class="text-yellow-800 font-medium">Sellers cannot purchase products. Please use a customer account.</p>
+                    </div>
+                    
                     <!-- Customer Controls (shown when NOT owner) -->
                     <div id="customer-controls">
                         <div class="mb-6">
@@ -204,8 +210,12 @@
                 } else if (!currentUser) {
                     // Not logged in - hide customer controls
                     document.getElementById('customer-controls').classList.add('hidden');
+                } else if (currentUser.role === 'seller') {
+                    // Seller - show warning, hide customer controls
+                    document.getElementById('seller-purchase-warning').classList.remove('hidden');
+                    document.getElementById('customer-controls').classList.add('hidden');
                 } else if (currentUser.role !== 'customer') {
-                    // Seller/Admin/System Admin - hide customer controls
+                    // Admin/System Admin - hide customer controls
                     document.getElementById('customer-controls').classList.add('hidden');
                 } else if (product.stock <= 0) {
                     // Out of stock
@@ -261,6 +271,7 @@
                     document.getElementById('cart-btn')?.classList.add('hidden');
                 } else {
                     if (dashboardLink) dashboardLink.classList.remove('hidden');
+                    if (myOrdersLink) myOrdersLink.classList.add('hidden');
                 }
                 
                 // Setup dropdown

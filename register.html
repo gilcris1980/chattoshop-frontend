@@ -112,15 +112,19 @@ const data = await api.post('/register', {
                     window.location.href = 'dashboard.html';
                 }, 1000);
             } catch (error) {
-                if (error.errors) {
-                    Object.keys(error.errors).forEach(key => {
+                if (error.data?.message) {
+                    showToast(error.data.message, 'error');
+                }
+                const errs = error.data?.errors || error.errors;
+                if (errs) {
+                    Object.keys(errs).forEach(key => {
                         const errorEl = document.getElementById(`${key}-error`);
                         if (errorEl) {
-                            errorEl.textContent = error.errors[key][0];
+                            errorEl.textContent = errs[key][0];
                             errorEl.classList.remove('hidden');
                         }
                     });
-                } else {
+                } else if (!error.data?.message) {
                     showToast(error.message || 'Registration failed. Please try again.', 'error');
                 }
             } finally {

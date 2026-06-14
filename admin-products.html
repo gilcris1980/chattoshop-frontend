@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Approval - ChattoShop Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Sidebar -->
+    <div class="fixed left-0 top-0 h-full w-64 bg-gray-900 text-white z-40">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-indigo-400">ChattoShop</h1>
+            <p class="text-sm text-gray-400">Admin Panel</p>
+        </div>
+        <nav class="mt-6">
+            <a href="admin-dashboard.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
+                <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+            </a>
+            <a href="admin-users.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
+                <i class="fas fa-users mr-3"></i> Users
+            </a>
+            <a href="admin-products.html" class="flex items-center px-6 py-3 bg-indigo-600 text-white">
+                <i class="fas fa-box mr-3"></i> Products
+            </a>
+            <a href="orders.html?filter=all" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
+                <i class="fas fa-shopping-bag mr-3"></i> Orders
+            </a>
+            <a href="categories.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
+                <i class="fas fa-tags mr-3"></i> Categories
+            </a>
+            <div class="border-t border-gray-700 mt-4 pt-4">
+                <a href="dashboard.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
+                    <i class="fas fa-user mr-3"></i> My Dashboard
+                </a>
+                <button onclick="logout()" class="flex items-center px-6 py-3 hover:bg-red-600 transition w-full text-left">
+                    <i class="fas fa-sign-out-alt mr-3"></i> Logout
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-8">
+        <div id="toast" class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50"></div>
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Product Approval</h1>
+                <p class="text-gray-500">Manage product listings and approvals</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="Search products..."
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                            onkeyup="handleSearch(event)">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="w-full md:w-48">
+                    <select id="status-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" onchange="loadProducts()">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table" class="divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center">
+                                <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div id="pagination" class="px-6 py-4 flex justify-between items-center border-t">
+                <p id="pagination-info" class="text-gray-500">Showing 0 products</p>
+                <div id="pagination-buttons" class="flex gap-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        let currentPage = 1;
+        let searchTimeout = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = api.getUser();
+            const token = api.getToken();
+            
+            if (!user || !token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (user.role !== 'system_admin' && user.role !== 'admin') {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('filter') === 'pending') {
+                document.getElementById('status-filter').value = 'pending';
+            }
+            
+            loadProducts();
+        });
+        
+        function handleSearch(event) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                loadProducts(1);
+            }, 500);
+        }
+        
+        async function loadProducts(page = 1) {
+            currentPage = page;
+            const search = document.getElementById('search-input').value;
+            const product_status = document.getElementById('status-filter').value;
+            
+            try {
+                const params = new URLSearchParams({
+                    page: page,
+                    per_page: 15,
+                    search: search,
+                });
+                if (product_status) {
+                    params.append('product_status', product_status);
+                }
+                
+                const data = await api.get(`/admin/products?${params.toString()}`);
+                renderProducts(data);
+                renderPagination(data);
+            } catch (error) {
+                showToast(error.message || 'Failed to load products', 'error');
+            }
+        }
+        
+        function renderProducts(data) {
+            const tbody = document.getElementById('products-table');
+            const products = data.data || [];
+            
+            if (products.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            No products found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = products.map(product => {
+                const approvalBadge = product.product_status === 'approved' ? 'bg-green-100 text-green-800' :
+                    product.product_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                    product.product_status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-700';
+                
+                const approveBtn = product.product_status === 'pending' ? `
+                    <button onclick="approveProduct(${product.id})" class="text-green-600 hover:text-green-800 mr-2" title="Approve">
+                        <i class="fas fa-check-circle"></i>
+                    </button>
+                ` : '';
+                
+                const rejectBtn = product.product_status === 'pending' ? `
+                    <button onclick="rejectProduct(${product.id})" class="text-red-600 hover:text-red-800 mr-2" title="Reject">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                ` : '';
+                
+                return `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            ${product.image ? 
+                                `<img src="${api.getStorageUrl(product.image)}" alt="${product.name}" class="w-10 h-10 rounded-lg object-cover mr-3">` :
+                                `<div class="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center mr-3">
+                                    <i class="fas fa-image text-gray-400"></i>
+                                </div>`
+                            }
+                            <span class="font-medium text-gray-800">${product.name}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600">${product.seller?.name || 'Unknown'}</td>
+                    <td class="px-6 py-4 font-semibold text-indigo-600">${api.formatCurrency(product.price)}</td>
+                    <td class="px-6 py-4">
+                        <span class="${product.stock > 0 ? 'text-green-600' : 'text-red-600'} font-medium">${product.stock}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded text-xs font-medium ${approvalBadge}">
+                            ${product.product_status ? product.product_status.charAt(0).toUpperCase() + product.product_status.slice(1) : 'Unknown'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${approveBtn}${rejectBtn}
+                    </td>
+                </tr>
+            `}).join('');
+        }
+        
+        function renderPagination(data) {
+            const info = document.getElementById('pagination-info');
+            const buttons = document.getElementById('pagination-buttons');
+            
+            info.textContent = `Showing ${data.from || 0} to ${data.to || 0} of ${data.total || 0} products`;
+            
+            if (!data.links || data.links.length <= 2) {
+                buttons.innerHTML = '';
+                return;
+            }
+            
+            buttons.innerHTML = data.links.map(link => {
+                if (!link.url) return '';
+                const page = link.url.split('page=')[1] || 1;
+                const active = link.active ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700';
+                return `<button onclick="loadProducts(${page})" class="px-3 py-1 rounded border ${active}">${link.label}</button>`;
+            }).join('');
+        }
+        
+        async function approveProduct(id) {
+            try {
+                await api.put(`/admin/products/${id}/approve`);
+                showToast('Product approved successfully', 'success');
+                loadProducts(currentPage);
+            } catch (error) {
+                showToast(error.message || 'Failed to approve product', 'error');
+            }
+        }
+        
+        async function rejectProduct(id) {
+            try {
+                await api.put(`/admin/products/${id}/reject`);
+                showToast('Product rejected successfully', 'success');
+                loadProducts(currentPage);
+            } catch (error) {
+                showToast(error.message || 'Failed to reject product', 'error');
+            }
+        }
+        
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 4000);
+        }
+        
+        function logout() {
+            api.removeToken();
+            api.removeUser();
+            localStorage.removeItem('cart');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

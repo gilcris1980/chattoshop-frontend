@@ -190,6 +190,12 @@
                 loadingState.classList.add('hidden');
                 successState.classList.remove('hidden');
 
+                if (token) {
+                    api.get('/me').then(user => {
+                        api.setUser(user);
+                    }).catch(() => {});
+                }
+
             } else if (error) {
 
                 loadingState.classList.add('hidden');
