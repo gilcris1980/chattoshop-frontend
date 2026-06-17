@@ -133,6 +133,16 @@ const api = {
             console.log('Response:', response.status, data);
             
             if (!response.ok) {
+                if (response.status === 403 && data.message && data.message.includes('not verified')) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    if (data.email) {
+                        sessionStorage.setItem('verify_email', data.email);
+                    }
+                    sessionStorage.setItem('verify_message', 'Please verify your email before proceeding.');
+                    window.location.href = './verify-email.html';
+                    throw new Error('Email not verified');
+                }
                 const error = new Error(data.message || data.error || 'Request failed');
                 error.data = data;
                 error.status = response.status;

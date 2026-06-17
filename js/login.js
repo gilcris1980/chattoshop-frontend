@@ -161,8 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     JSON.stringify(data.user)
                 );
 
-                alert('Login successful');
-
                 // =========================
                 // ROLE REDIRECT
                 // =========================
@@ -189,12 +187,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 }
 
+            } else if (response.status === 403 && data.needs_verification) {
+
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                sessionStorage.setItem('verify_email', data.user?.email || email);
+                sessionStorage.setItem('verify_message', 'Please verify your email before logging in.');
+                window.location.href = './verify-email.html';
+
             } else {
 
-                alert(
-                    data.message ||
-                    'Invalid credentials'
-                );
+                const errorEl = document.getElementById('email-error');
+                if (errorEl) {
+                    errorEl.textContent = data.message || 'Invalid credentials';
+                    errorEl.classList.remove('hidden');
+                } else {
+                    alert(data.message || 'Invalid credentials');
+                }
 
             }
 

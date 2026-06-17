@@ -191,6 +191,70 @@
 
                 </div>
 
+                <!-- CHANGE PASSWORD -->
+                <div class="bg-white rounded-lg shadow p-6 mt-6">
+
+                    <h2 class="text-xl font-semibold mb-4">
+                        Change Password
+                    </h2>
+
+                    <form id="change-password-form" class="space-y-4">
+
+                        <div>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Current Password
+                            </label>
+
+                            <input type="password"
+                                id="current_password"
+                                required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+
+                        </div>
+
+                        <div>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                New Password
+                            </label>
+
+                            <input type="password"
+                                id="new_password"
+                                required
+                                minlength="8"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+
+                        </div>
+
+                        <div>
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Confirm New Password
+                            </label>
+
+                            <input type="password"
+                                id="new_password_confirmation"
+                                required
+                                minlength="8"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+
+                        </div>
+
+                        <p id="change-password-error" class="text-red-500 text-sm hidden"></p>
+
+                        <button type="submit"
+                            id="change-password-btn"
+                            class="w-full bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-900">
+
+                            Change Password
+
+                        </button>
+
+                    </form>
+
+                </div>
+
             </div>
 
             <!-- SIDE INFO -->
@@ -466,6 +530,66 @@
             }, 3000);
 
         }
+
+        // CHANGE PASSWORD
+        document.getElementById('change-password-form')
+            .addEventListener('submit', async (e) => {
+
+                e.preventDefault();
+
+                const btn = document.getElementById('change-password-btn');
+                const errorEl = document.getElementById('change-password-error');
+
+                errorEl.classList.add('hidden');
+
+                const currentPassword = document.getElementById('current_password').value;
+                const password = document.getElementById('new_password').value;
+                const passwordConfirmation = document.getElementById('new_password_confirmation').value;
+
+                if (!currentPassword || !password || !passwordConfirmation) {
+                    errorEl.textContent = 'Please fill in all fields.';
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                if (password.length < 8) {
+                    errorEl.textContent = 'New password must be at least 8 characters.';
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                if (password !== passwordConfirmation) {
+                    errorEl.textContent = 'New passwords do not match.';
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = 'Changing...';
+
+                try {
+                    await api.post('/change-password', {
+                        current_password: currentPassword,
+                        password: password,
+                        password_confirmation: passwordConfirmation,
+                    });
+
+                    document.getElementById('current_password').value = '';
+                    document.getElementById('new_password').value = '';
+                    document.getElementById('new_password_confirmation').value = '';
+
+                    showToast('Password changed successfully!', 'success');
+
+                } catch (error) {
+                    const msg = error.data?.message || error.message || 'Failed to change password';
+                    errorEl.textContent = msg;
+                    errorEl.classList.remove('hidden');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Change Password';
+                }
+
+            });
 
         function logout() {
 
