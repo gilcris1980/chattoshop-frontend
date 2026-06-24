@@ -129,81 +129,39 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.disabled = true;
             submitButton.innerHTML = 'Logging in...';
 
-            const response = await fetch(
-                'https://chattoshop-api.onrender.com/api/login',
-                {
-                    method: 'POST',
-
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-
-                    body: JSON.stringify({
-                        email,
-                        password
-                    })
-                }
-            );
-
-            const data = await response.json();
+            const data = await api.post('/login', { email, password });
 
             console.log('LOGIN RESPONSE:', data);
 
-            if (response.ok) {
+            // SAVE TOKEN
+            api.setToken(data.token);
 
-                // SAVE TOKEN
-                localStorage.setItem('token', data.token);
+            // SAVE USER
+            api.setUser(data.user);
 
-                // SAVE USER
-                localStorage.setItem(
-                    'user',
-                    JSON.stringify(data.user)
-                );
+            // =========================
+            // ROLE REDIRECT
+            // =========================
 
-                // =========================
-                // ROLE REDIRECT
-                // =========================
+            if (
+                data.user.role === 'system_admin' ||
+                data.user.role === 'admin'
+            ) {
 
-                if (
-                    data.user.role === 'system_admin' ||
-                    data.user.role === 'admin'
-                ) {
+                window.location.href =
+                    './admin-dashboard.html';
 
-                    window.location.href =
-                        './admin-dashboard.html';
+            }
+            else if (data.user.role === 'seller') {
 
-                }
-                else if (data.user.role === 'seller') {
+                window.location.href =
+                    './seller-dashboard.html';
 
-                    window.location.href =
-                        './seller-dashboard.html';
+            }
+            else {
 
-                }
-                else {
-
-                    window.location.href =
-                        './index.html';
-
-                }
-
-            } else if (response.status === 403 && data.needs_verification) {
-
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                sessionStorage.setItem('verify_email', data.user?.email || email);
-                sessionStorage.setItem('verify_message', 'Please verify your email before logging in.');
-                window.location.href = './verify-email.html';
-
-            } else {
-
-                const errorEl = document.getElementById('email-error');
-                if (errorEl) {
-                    errorEl.textContent = data.message || 'Invalid credentials';
-                    errorEl.classList.remove('hidden');
-                } else {
-                    alert(data.message || 'Invalid credentials');
-                }
+                window.location.href =
+                    './index.html';
 
             }
 
@@ -211,7 +169,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.error('LOGIN ERROR:', error);
 
-            alert('Server error');
+            // api.js already handled 403 redirect for email verification
+            if (error.message === 'Email not verified') {
+                return;
+            }
+
+            const errorEl = document.getElementById('email-error');
+            if (errorEl) {
+                errorEl.textContent = error.data?.message || error.message || 'Server error';
+                errorEl.classList.remove('hidden');
+            } else {
+                alert(error.data?.message || error.message || 'Server error');
+            }
 
         } finally {
 
