@@ -611,6 +611,21 @@
         }
         
         window.logout = logout;
+
+        async function refreshSellerStatus() {
+            try {
+                const data = await api.get('/me');
+                const currentUser = api.getUser();
+                if (data && currentUser && data.seller_status !== currentUser.seller_status) {
+                    api.setUser(data);
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Failed to refresh seller status:', error);
+            }
+        }
+
+        setInterval(refreshSellerStatus, 30000);
     </script>
 </body>
 </html>

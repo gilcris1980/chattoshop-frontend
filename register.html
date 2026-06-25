@@ -107,9 +107,9 @@ const data = await api.post('/register', {
                 api.setToken(data.token);
                 api.setUser(data.user);
                 
-                showToast('Registration successful!', 'success');
+                showToast('Registration successful! Please verify your email.', 'success');
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = `verify-email.html?email=${encodeURIComponent(email)}`;
                 }, 1000);
             } catch (error) {
                 if (error.data?.message) {
