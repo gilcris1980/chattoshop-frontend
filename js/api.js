@@ -209,6 +209,10 @@ const api = {
             body: formData,
         });
         
+        if (response.status === 204) {
+            return { success: true };
+        }
+        
         const text = await response.text();
         let data;
         try {
@@ -218,7 +222,20 @@ const api = {
         }
         
         if (!response.ok) {
-            throw new Error(data.message || data.error || 'Upload failed');
+            if (response.status === 403 && (data.needs_verification || (data.message && data.message.includes('not verified')))) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                if (data.email) {
+                    sessionStorage.setItem('verify_email', data.email);
+                }
+                sessionStorage.setItem('verify_message', 'Please verify your email before proceeding.');
+                window.location.href = './verify-email.html';
+                throw new Error('Email not verified');
+            }
+            const error = new Error(data.message || data.error || 'Upload failed');
+            error.data = data;
+            error.status = response.status;
+            throw error;
         }
         
         return data;
