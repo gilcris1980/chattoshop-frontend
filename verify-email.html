@@ -103,7 +103,7 @@
 
                 <div class="mt-6 text-center">
 
-                    <a href="./login.html" class="text-gray-500 hover:text-gray-700 text-sm">
+                    <a href="./login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('user');" class="text-gray-500 hover:text-gray-700 text-sm">
 
                         <i class="fas fa-arrow-left mr-1"></i>
 
@@ -130,7 +130,7 @@
                     Your email has been successfully verified. You can now log in.
                 </p>
 
-                <a href="./login.html"
+                <a href="./login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('user');"
                     class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200">
 
                     <i class="fas fa-sign-in-alt mr-2"></i>
@@ -160,7 +160,7 @@
                     Please log in to request a new OTP code.
                 </p>
 
-                <a href="./login.html"
+                <a href="./login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('user');"
                     class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200">
 
                     <i class="fas fa-sign-in-alt mr-2"></i>
