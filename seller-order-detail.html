@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details - ChattoShop</title>
+    <title>Order Details - Seller - ChattoShop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        .status-dot { width: 40px; height: 40px; }
+        .status-line { height: 3px; flex: 1; min-width: 20px; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100">
 
     <!-- Navigation -->
     <nav class="bg-white shadow-lg sticky top-0 z-50">
@@ -19,6 +21,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
                     <a href="index.html" class="text-2xl font-bold text-indigo-600">ChattoShop</a>
+                    <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Seller</span>
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="relative">
@@ -33,7 +36,8 @@
                                 <p id="dropdown-user-email" class="text-sm text-gray-500">user@email.com</p>
                             </div>
                             <a href="profile.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-user mr-2"></i> Profile</a>
-                            <a href="orders.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-shopping-bag mr-2"></i> My Orders</a>
+                            <a href="seller-dashboard.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a>
+                            <a href="seller-products.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-box mr-2"></i> My Products</a>
                             <button onclick="logout()" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-100 mt-1 pt-1">
                                 <i class="fas fa-sign-out-alt mr-2"></i> Logout
                             </button>
@@ -52,13 +56,14 @@
         <!-- Loading -->
         <div id="loading" class="text-center py-12">
             <i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i>
+            <p class="text-gray-500 mt-4">Loading order details...</p>
         </div>
 
         <!-- Error -->
         <div id="error" class="hidden text-center py-12">
             <i class="fas fa-exclamation-circle text-6xl text-gray-300 mb-4"></i>
             <p class="text-gray-500 text-lg">Order not found</p>
-            <a href="dashboard.html" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800">Back to My Purchases</a>
+            <a href="seller-dashboard.html" class="mt-4 inline-block text-indigo-600 hover:text-indigo-800">Back to Dashboard</a>
         </div>
 
         <!-- Order Detail -->
@@ -66,32 +71,52 @@
 
             <!-- Back Button -->
             <div class="mb-6">
-                <a href="dashboard.html" class="text-gray-600 hover:text-gray-800">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to My Purchases
+                <a href="seller-dashboard.html" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
                 </a>
             </div>
 
-            <!-- Order Header Card -->
+            <!-- Order Header -->
             <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
-                <div class="bg-gray-50 px-6 py-4 border-b flex flex-wrap justify-between items-start gap-4">
+                <div class="px-6 py-5 border-b flex flex-wrap justify-between items-start gap-4">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-800">Order #<span id="order-id"></span></h1>
                         <p class="text-sm text-gray-500 mt-1">Placed on <span id="order-date"></span></p>
                     </div>
-                    <div class="text-right">
-                        <span id="order-status" class="px-4 py-2 rounded-full text-sm font-medium"></span>
-                        <p id="order-total" class="text-2xl font-bold text-indigo-600 mt-2"></p>
-                    </div>
+                    <span id="order-status-badge" class="px-4 py-2 rounded-full text-sm font-medium"></span>
                 </div>
             </div>
 
-            <!-- Seller Info -->
+            <!-- Customer Information -->
             <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
                 <div class="px-6 py-4 border-b bg-gray-50">
-                    <h3 class="font-semibold text-gray-800"><i class="fas fa-store mr-2 text-indigo-600"></i>Seller</h3>
+                    <h3 class="font-semibold text-gray-800"><i class="fas fa-user mr-2 text-indigo-600"></i>Customer Information</h3>
                 </div>
-                <div class="px-6 py-4">
-                    <p class="text-gray-700" id="seller-info">Loading...</p>
+                <div class="px-6 py-5 space-y-4">
+                    <div class="flex items-start">
+                        <span class="text-gray-500 w-32 flex-shrink-0 font-medium">Name</span>
+                        <span id="customer-name" class="text-gray-800"></span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-gray-500 w-32 flex-shrink-0 font-medium">Email</span>
+                        <span id="customer-email" class="text-gray-800"></span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-gray-500 w-32 flex-shrink-0 font-medium">Phone</span>
+                        <span id="customer-phone" class="text-gray-800"></span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-gray-500 w-32 flex-shrink-0 font-medium">Shipping Address</span>
+                        <span id="order-shipping" class="text-gray-800"></span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-gray-500 w-32 flex-shrink-0 font-medium">Order Notes</span>
+                        <span id="order-notes" class="text-gray-800"></span>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="text-gray-500 w-32 flex-shrink-0 font-medium">Payment Method</span>
+                        <span id="order-payment" class="text-gray-800"></span>
+                    </div>
                 </div>
             </div>
 
@@ -101,47 +126,24 @@
                     <h3 class="font-semibold text-gray-800"><i class="fas fa-box mr-2 text-indigo-600"></i>Products</h3>
                 </div>
                 <div id="order-items" class="divide-y divide-gray-200">
-                    <!-- Items loaded via JS -->
+                    <!-- Product cards rendered by JS -->
                 </div>
-                <div class="px-6 py-5 bg-gray-50 border-t">
-                    <div class="flex justify-between items-center">
-                        <span class="font-semibold text-gray-800 text-lg">Total Amount</span>
-                        <span id="order-total-bottom" class="text-2xl font-bold text-indigo-600"></span>
-                    </div>
+                <div class="px-6 py-5 bg-gray-50 border-t flex justify-between items-center">
+                    <span class="font-semibold text-gray-800 text-lg">Total Amount</span>
+                    <span id="order-total" class="text-2xl font-bold text-indigo-600"></span>
                 </div>
             </div>
 
-            <!-- Shipping & Payment -->
+            <!-- Status Timeline -->
             <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
                 <div class="px-6 py-4 border-b bg-gray-50">
-                    <h3 class="font-semibold text-gray-800"><i class="fas fa-truck mr-2 text-indigo-600"></i>Shipping & Payment</h3>
+                    <h3 class="font-semibold text-gray-800"><i class="fas fa-tasks mr-2 text-indigo-600"></i>Order Status</h3>
                 </div>
-                <div class="px-6 py-5 space-y-4">
-                    <div class="flex items-start">
-                        <span class="text-gray-500 w-32 flex-shrink-0">Shipping Address</span>
-                        <span id="order-shipping" class="text-gray-800"></span>
-                    </div>
-                    <div class="flex items-start">
-                        <span class="text-gray-500 w-32 flex-shrink-0">Phone Number</span>
-                        <span id="order-phone" class="text-gray-800"></span>
-                    </div>
-                    <div class="flex items-start">
-                        <span class="text-gray-500 w-32 flex-shrink-0">Payment Method</span>
-                        <span id="order-payment" class="text-gray-800"></span>
-                    </div>
-                    <div id="order-notes-row" class="hidden flex items-start">
-                        <span class="text-gray-500 w-32 flex-shrink-0">Order Notes</span>
-                        <span id="order-notes" class="text-gray-800"></span>
+                <div class="px-6 py-6">
+                    <div id="status-flow" class="flex items-center justify-center gap-1 sm:gap-2">
+                        <!-- Rendered by JS -->
                     </div>
                 </div>
-            </div>
-
-            <!-- Actions -->
-            <div id="order-actions" class="hidden flex gap-4">
-                <button id="cancel-btn" onclick="cancelOrder()"
-                    class="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">
-                    <i class="fas fa-times mr-2"></i>Cancel Order
-                </button>
             </div>
 
         </div>
@@ -153,12 +155,35 @@
         let orderData = null;
         let dropdownOpen = false;
 
+        const STATUS_FLOW = ['pending', 'processing', 'shipped', 'delivered'];
+        const STATUS_LABELS = {
+            pending: 'Pending',
+            processing: 'Processing',
+            shipped: 'Shipped',
+            delivered: 'Delivered',
+            completed: 'Completed',
+            cancelled: 'Cancelled'
+        };
+        const STATUS_COLORS = {
+            pending: 'bg-yellow-100 text-yellow-800',
+            processing: 'bg-blue-100 text-blue-800',
+            shipped: 'bg-purple-100 text-purple-800',
+            delivered: 'bg-green-100 text-green-800',
+            completed: 'bg-green-100 text-green-800',
+            cancelled: 'bg-red-100 text-red-800'
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             const user = api.getUser();
             const token = api.getToken();
 
             if (!user || !token) {
                 window.location.href = 'login.html';
+                return;
+            }
+
+            if (user.role !== 'seller') {
+                window.location.href = 'dashboard.html';
                 return;
             }
 
@@ -213,41 +238,29 @@
             }
         }
 
-        function getStatusClass(status) {
-            const classes = {
-                'pending': 'bg-yellow-100 text-yellow-800',
-                'processing': 'bg-blue-100 text-blue-800',
-                'shipped': 'bg-purple-100 text-purple-800',
-                'delivered': 'bg-green-100 text-green-800',
-                'completed': 'bg-green-100 text-green-800',
-                'cancelled': 'bg-red-100 text-red-800'
-            };
-            return classes[status] || 'bg-gray-100 text-gray-800';
-        }
-
         function renderOrder(order) {
             const items = order.items || [];
 
+            // Header
             document.getElementById('order-id').textContent = order.id;
             document.getElementById('order-date').textContent = new Date(order.created_at).toLocaleDateString('en-PH', {
                 year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
             });
 
-            const statusBadge = document.getElementById('order-status');
-            statusBadge.textContent = order.status.charAt(0).toUpperCase() + order.status.slice(1);
-            statusBadge.className = 'px-4 py-2 rounded-full text-sm font-medium ' + getStatusClass(order.status);
+            const statusBadge = document.getElementById('order-status-badge');
+            statusBadge.textContent = STATUS_LABELS[order.status] || order.status;
+            statusBadge.className = 'px-4 py-2 rounded-full text-sm font-medium ' + (STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-800');
 
+            // Total
             document.getElementById('order-total').textContent = api.formatCurrency(order.total_amount);
-            document.getElementById('order-total-bottom').textContent = api.formatCurrency(order.total_amount);
 
-            // Seller info — collect unique seller names from items
-            const sellerNames = [...new Set(items
-                .filter(item => item.product?.seller)
-                .map(item => item.product.seller.name)
-            )];
-            document.getElementById('seller-info').textContent = sellerNames.length > 0
-                ? sellerNames.join(', ')
-                : 'N/A';
+            // Customer info
+            document.getElementById('customer-name').textContent = order.user?.name || 'N/A';
+            document.getElementById('customer-email').textContent = order.user?.email || 'N/A';
+            document.getElementById('customer-phone').textContent = order.user?.phone || 'N/A';
+            document.getElementById('order-shipping').textContent = order.shipping_address || 'N/A';
+            document.getElementById('order-notes').textContent = order.notes || 'No notes';
+            document.getElementById('order-payment').textContent = (order.payment_method || 'cod').toUpperCase();
 
             // Products as cards
             const itemsContainer = document.getElementById('order-items');
@@ -256,6 +269,7 @@
                 const imgUrl = product.image ? api.getStorageUrl(product.image) : 'https://via.placeholder.com/300x300?text=No+Image';
                 const unitPrice = parseFloat(item.price);
                 const subtotal = unitPrice * item.quantity;
+
                 return `
                     <div class="px-6 py-5 flex items-start gap-5">
                         <div class="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border">
@@ -282,37 +296,97 @@
                 `;
             }).join('');
 
-            // Shipping & payment
-            document.getElementById('order-shipping').textContent = order.shipping_address || 'N/A';
-            document.getElementById('order-phone').textContent = order.user?.phone || 'N/A';
-            document.getElementById('order-payment').textContent = (order.payment_method || 'cod').toUpperCase();
-
-            // Notes
-            if (order.notes) {
-                document.getElementById('order-notes-row').classList.remove('hidden');
-                document.getElementById('order-notes').textContent = order.notes;
-            }
-
-            // Cancel button — only when pending
-            const user = api.getUser();
-            if (user && user.role === 'customer' && order.status === 'pending') {
-                document.getElementById('order-actions').classList.remove('hidden');
-            }
+            // Status flow timeline
+            renderStatusFlow(order.status);
         }
 
-        async function cancelOrder() {
-            if (!orderData || orderData.status !== 'pending') return;
+        function renderStatusFlow(currentStatus) {
+            const container = document.getElementById('status-flow');
+            const currentIdx = STATUS_FLOW.indexOf(currentStatus);
 
-            if (!confirm('Are you sure you want to cancel this order?')) return;
+            if (currentStatus === 'completed' || currentStatus === 'cancelled') {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <span class="px-6 py-3 rounded-full text-lg font-semibold ${STATUS_COLORS[currentStatus] || 'bg-gray-100 text-gray-800'}">
+                            <i class="fas ${currentStatus === 'completed' ? 'fa-check-circle' : 'fa-times-circle'} mr-2"></i>
+                            ${STATUS_LABELS[currentStatus] || currentStatus}
+                        </span>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentIdx === -1) {
+                container.innerHTML = `<span class="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800">${currentStatus}</span>`;
+                return;
+            }
+
+            container.innerHTML = STATUS_FLOW.map((status, idx) => {
+                const isCompleted = idx < currentIdx;
+                const isCurrent = idx === currentIdx;
+                const isNext = idx === currentIdx + 1;
+
+                let dotClass = 'status-dot rounded-full flex items-center justify-center text-sm font-bold border-2 flex-shrink-0';
+                let lineClass = 'status-line';
+                let clickable = false;
+
+                if (isCompleted) {
+                    dotClass += ' bg-indigo-600 border-indigo-600 text-white';
+                    lineClass += ' bg-indigo-600';
+                } else if (isCurrent) {
+                    dotClass += ' border-indigo-600 text-indigo-600 bg-white';
+                    lineClass += ' bg-gray-300';
+                } else if (isNext) {
+                    dotClass += ' border-indigo-400 text-indigo-500 bg-white cursor-pointer hover:bg-indigo-50 hover:border-indigo-500 transition';
+                    lineClass += ' bg-gray-300';
+                    clickable = true;
+                } else {
+                    dotClass += ' border-gray-300 text-gray-400 bg-white';
+                    lineClass += ' bg-gray-300';
+                }
+
+                const dotContent = isCompleted ? '<i class="fas fa-check text-sm"></i>' : (idx + 1);
+                const label = STATUS_LABELS[status] || status;
+
+                const dotHtml = clickable
+                    ? `<button onclick="updateStatus('${status}')" class="${dotClass}" title="Mark as ${label}">${dotContent}</button>`
+                    : `<div class="${dotClass}">${dotContent}</div>`;
+
+                const lineHtml = idx < STATUS_FLOW.length - 1
+                    ? `<div class="${lineClass}"></div>`
+                    : '';
+
+                return `
+                    <div class="flex flex-col items-center">
+                        ${dotHtml}
+                        <span class="text-xs mt-2 font-medium ${isCompleted || isCurrent ? 'text-indigo-700' : 'text-gray-400'}">${label}</span>
+                    </div>
+                    ${lineHtml}
+                `;
+            }).join('');
+        }
+
+        async function updateStatus(newStatus) {
+            if (!orderData) return;
+
+            const currentIdx = STATUS_FLOW.indexOf(orderData.status);
+            const newIdx = STATUS_FLOW.indexOf(newStatus);
+
+            if (newIdx !== currentIdx + 1) {
+                showToast('Only forward progression is allowed.', 'error');
+                return;
+            }
 
             try {
-                await api.post('/orders/' + orderId + '/cancel');
-                showToast('Order cancelled successfully', 'success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                await api.put('/orders/' + orderId + '/status', { status: newStatus });
+                showToast('Order status updated to ' + (STATUS_LABELS[newStatus] || newStatus), 'success');
+                orderData.status = newStatus;
+                renderStatusFlow(newStatus);
+                const statusBadge = document.getElementById('order-status-badge');
+                statusBadge.textContent = STATUS_LABELS[newStatus] || newStatus;
+                statusBadge.className = 'px-4 py-2 rounded-full text-sm font-medium ' + (STATUS_COLORS[newStatus] || 'bg-gray-100 text-gray-800');
             } catch (error) {
-                showToast(error.message || 'Failed to cancel order', 'error');
+                showToast(error.message || 'Failed to update order status', 'error');
             }
         }
 
