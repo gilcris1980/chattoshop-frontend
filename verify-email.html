@@ -272,7 +272,10 @@
                         resendMessage.className = 'text-sm mt-4 text-green-600';
 
                     } catch (error) {
-                        const msg = error.data?.message || error.message || 'Failed to resend OTP';
+                        let msg = error.data?.message || error.message || 'Failed to resend OTP';
+                        if (error.status === 429) {
+                            msg = 'Too many resend requests. Please wait a minute before requesting another OTP.';
+                        }
 
                         resendMessage.textContent = msg;
                         resendMessage.className = 'text-sm mt-4 text-red-600';
