@@ -368,7 +368,7 @@ async function loadProducts() {
                             if (user && user.role !== 'customer') return '';
                             return `
                             <button
-                                onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.image || ''}')"
+                                onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.image || ''}', ${product.stock})"
                                 class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm"
                             >
                                 Add
@@ -390,9 +390,15 @@ async function loadProducts() {
 
 }
 
-function addToCart(id, name, price, image) {
+function addToCart(id, name, price, image, stock) {
 
     const existing = cart.find(item => item.id === id);
+    const currentQty = existing ? existing.quantity : 0;
+
+    if (currentQty >= stock) {
+        showToast('Maximum available stock reached.');
+        return;
+    }
 
     if (existing) {
 
@@ -405,6 +411,7 @@ function addToCart(id, name, price, image) {
             name,
             price: parseFloat(price),
             image,
+            stock,
             quantity: 1
         });
 

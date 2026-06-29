@@ -230,6 +230,21 @@
             if (user.seller_status === 'pending') {
                 document.getElementById('pending-warning').classList.remove('hidden');
                 document.querySelector('.flex.justify-between.items-center.mb-6 a[href="add-product.html"]')?.classList.add('hidden');
+                document.getElementById('stats-grid').innerHTML = `
+                    <div class="bg-white rounded-lg shadow p-6 col-span-4">
+                        <p class="text-center text-gray-500">Your account is pending approval. Stats are unavailable.</p>
+                    </div>
+                `;
+                document.getElementById('products-table').innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fas fa-lock text-4xl mb-4"></i>
+                            <p>Your account is pending approval.</p>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('pagination')?.classList.add('hidden');
+                return;
             }
             
             await loadCategories();

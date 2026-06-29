@@ -328,21 +328,29 @@
         
         function addToCartFromDetail() {
             if (!currentProduct) return;
-            
+
             const existing = cart.find(item => item.id === currentProduct.id);
-            
+            const currentQty = existing ? existing.quantity : 0;
+            const totalQty = currentQty + quantity;
+
+            if (totalQty > currentProduct.stock) {
+                showToast('Maximum available stock reached.', 'error');
+                return;
+            }
+
             if (existing) {
-                existing.quantity += quantity;
+                existing.quantity = totalQty;
             } else {
                 cart.push({
                     id: currentProduct.id,
                     name: currentProduct.name,
                     price: parseFloat(currentProduct.price),
                     image: currentProduct.image,
+                    stock: currentProduct.stock,
                     quantity: quantity
                 });
             }
-            
+
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartUI();
             showToast('Product added to cart!', 'success');

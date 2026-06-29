@@ -139,7 +139,7 @@ const api = {
                     if (data.email) {
                         sessionStorage.setItem('verify_email', data.email);
                     }
-                    sessionStorage.setItem('verify_message', 'Please verify your email before proceeding.');
+                    sessionStorage.setItem('verify_message', 'Please verify your email first.');
                     window.location.href = './verify-email.html';
                     throw new Error('Email not verified');
                 }
@@ -228,7 +228,7 @@ const api = {
                 if (data.email) {
                     sessionStorage.setItem('verify_email', data.email);
                 }
-                sessionStorage.setItem('verify_message', 'Please verify your email before proceeding.');
+                sessionStorage.setItem('verify_message', 'Please verify your email first.');
                 window.location.href = './verify-email.html';
                 throw new Error('Email not verified');
             }
