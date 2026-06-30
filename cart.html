@@ -154,11 +154,7 @@
         function updateQuantity(index, change) {
             const item = cart[index];
             const newQty = item.quantity + change;
-            if (newQty < 1) {
-                cart.splice(index, 1);
-                localStorage.setItem('cart', JSON.stringify(cart));
-                renderCart();
-                updateCartUI();
+            if (newQty < 0) {
                 return;
             }
             if (change > 0 && item.stock && newQty > item.stock) {

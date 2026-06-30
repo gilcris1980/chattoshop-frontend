@@ -168,11 +168,20 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
             
-            const items = cart.map(item => ({
-                product_id: item.id,
-                quantity: item.quantity
-            }));
-            
+            const items = cart
+                .filter(item => item.quantity > 0)
+                .map(item => ({
+                    product_id: item.id,
+                    quantity: item.quantity
+                }));
+
+            if (items.length === 0) {
+                showToast('Please remove zero-quantity items or add items to your cart before checking out.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Place Order';
+                return;
+            }
+
             try {
                 const order = await api.post('/orders', {
                     items,
