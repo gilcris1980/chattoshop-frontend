@@ -48,7 +48,7 @@
 
                     <a href="dashboard.html"
                         class="text-gray-700 hover:text-indigo-600 font-medium">
-                        Dashboard
+                        My Purchases
                     </a>
                 </div>
 
@@ -147,8 +147,25 @@
                             <input type="email"
                                 id="email"
                                 required
-                                readonly
-                                class="w-full px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+
+                        </div>
+
+                        <!-- CURRENT PASSWORD (for email change) -->
+                        <div id="current-password-container">
+
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Current Password <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="password"
+                                id="current_password"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                placeholder="Enter current password to change email">
+
+                            <p class="text-xs text-gray-500 mt-1">
+                                Required only when changing your email.
+                            </p>
 
                         </div>
 
@@ -301,7 +318,7 @@
 
                         <i class="fas fa-arrow-left mr-2"></i>
 
-                        Back to Dashboard
+                        Back to My Purchases
 
                     </a>
 
@@ -448,6 +465,17 @@
                     document.getElementById('address').value
                 );
 
+                const user = api.getUser();
+                const newEmail = document.getElementById('email').value.trim();
+
+                if (newEmail !== user.email) {
+                    formData.append('email', newEmail);
+                    formData.append(
+                        'current_password',
+                        document.getElementById('current_password').value
+                    );
+                }
+
                 const avatarInput =
                     document.getElementById('avatar');
 
@@ -469,6 +497,18 @@
                             'PUT'
                         );
 
+                    if (data.needs_verification) {
+                        api.removeToken();
+                        api.removeUser();
+                        localStorage.removeItem('cart');
+                        if (data.email) {
+                            sessionStorage.setItem('verify_email', data.email);
+                        }
+                        sessionStorage.setItem('verify_message', 'Email changed successfully. Please verify your new email.');
+                        window.location.href = './verify-email.html';
+                        return;
+                    }
+
                     api.setUser(data.user);
 
                     localStorage.setItem(
@@ -487,10 +527,13 @@
 
                     console.error(error);
 
-                    showToast(
-                        'Failed to update profile',
-                        'error'
-                    );
+                    let msg = 'Failed to update profile';
+
+                    if (error.data && error.data.message) {
+                        msg = error.data.message;
+                    }
+
+                    showToast(msg, 'error');
 
                 } finally {
 
