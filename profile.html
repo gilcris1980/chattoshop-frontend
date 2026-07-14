@@ -542,8 +542,19 @@
 
                     let msg = 'Failed to update profile';
 
-                    if (error.data && error.data.message) {
-                        msg = error.data.message;
+                    if (error.data) {
+                        if (error.data.errors) {
+                            const firstField = Object.values(error.data.errors)[0];
+                            if (Array.isArray(firstField) && firstField.length > 0) {
+                                msg = firstField[0];
+                            }
+                        } else if (error.data.message) {
+                            msg = error.data.message;
+                        } else if (error.data.error) {
+                            msg = error.data.error;
+                        }
+                    } else if (error.message) {
+                        msg = error.message;
                     }
 
                     showToast(msg, 'error');
