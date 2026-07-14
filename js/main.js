@@ -428,12 +428,20 @@ function addToCart(id, name, price, image, stock) {
 function updateCartUI() {
 
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-
     const cartCount = document.getElementById('cart-count');
 
     if (cartCount) {
 
         cartCount.textContent = count;
+
+        if (count > 0) {
+            cartCount.classList.remove('hidden');
+            cartCount.classList.remove('badge-pulse');
+            void cartCount.offsetWidth;
+            cartCount.classList.add('badge-pulse');
+        } else {
+            cartCount.classList.add('hidden');
+        }
 
     }
 
@@ -476,36 +484,89 @@ async function loadNotifications() {
             return;
         }
 
-        container.innerHTML = notifications.map(notification => `
-            <div class="p-4 border-b hover:bg-gray-50">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="font-semibold text-sm">
-                            ${notification.title || 'Notification'}
-                        </p>
+        container.innerHTML = notifications.map(notification => {
+            const icon = getNotifIcon(notification.type);
+            const displayTitle = getNotifTitle(notification.type, notification.title);
+            const { orderRef, description } = parseOrderRef(notification.message);
+            const time = timeAgo(notification.created_at);
 
-                        <p class="text-gray-600 text-sm mt-1">
-                            ${notification.message || ''}
-                        </p>
-
-                        <p class="text-xs text-gray-400 mt-2">
-                            ${new Date(notification.created_at)
-                                .toLocaleString()}
-                        </p>
+            return `
+            <div class="px-4 py-3 border-b border-gray-100 hover:bg-indigo-50 transition duration-150 ease-in-out">
+                <div class="flex gap-3">
+                    <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <i class="fas ${icon} text-indigo-600 text-sm"></i>
                     </div>
-
-                    ${
-                        !notification.read_at
-                            ? `<span class="w-2 h-2 bg-blue-500 rounded-full"></span>`
-                            : ''
-                    }
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="font-semibold text-sm text-gray-800 truncate">${displayTitle}</p>
+                            ${
+                                !notification.read_at
+                                    ? `<span class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5"></span>`
+                                    : ''
+                            }
+                        </div>
+                        ${orderRef ? `<p class="text-xs font-medium text-indigo-600 mt-0.5">${orderRef}</p>` : ''}
+                        <p class="text-sm text-gray-600 mt-0.5 leading-snug">${description}</p>
+                        <p class="text-xs text-gray-400 mt-1">${time}</p>
+                    </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
 
     } catch (error) {
         console.error('Failed to load notifications', error);
     }
+}
+
+function getNotifIcon(type) {
+    const icons = {
+        order_status: 'fa-shopping-bag',
+        order_update: 'fa-truck',
+        order_completed: 'fa-check-circle',
+        order_shipped: 'fa-shipping-fast',
+        payment: 'fa-credit-card',
+        system: 'fa-cog',
+    };
+    return icons[type] || 'fa-bell';
+}
+
+function getNotifTitle(type, fallback) {
+    const titles = {
+        order_status: 'Order Update',
+        order_update: 'Order Update',
+        order_completed: 'Order Completed',
+        order_shipped: 'Order Shipped',
+        payment: 'Payment Update',
+        system: 'System Notice',
+    };
+    return titles[type] || fallback || 'Notification';
+}
+
+function parseOrderRef(message) {
+    const match = message && message.match(/^(Order\s+#\d+)[:\s]\s*(.*)/);
+    if (match) {
+        return { orderRef: match[1], description: match[2] };
+    }
+    return { orderRef: null, description: message || '' };
+}
+
+function timeAgo(dateStr) {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const seconds = Math.floor((now - date) / 1000);
+    if (seconds < 5) return 'Just now';
+    if (seconds < 60) return seconds + 's ago';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes === 1) return '1 min ago';
+    if (minutes < 60) return minutes + ' mins ago';
+    const hours = Math.floor(minutes / 60);
+    if (hours === 1) return '1 hour ago';
+    if (hours < 24) return hours + ' hours ago';
+    const days = Math.floor(hours / 24);
+    if (days === 1) return '1 day ago';
+    if (days < 30) return days + ' days ago';
+    return date.toLocaleDateString();
 }
 function updateNotificationBadge(count) {
 
@@ -516,26 +577,19 @@ function updateNotificationBadge(count) {
 
     if (count > 0) {
 
+        badge.textContent = count > 9 ? '9+' : count;
         badge.classList.remove('hidden');
-
-        if (count > 9) {
-            badge.textContent = '9+';
-        } else {
-            badge.textContent = count;
-        }
-
-        badge.classList.add(
-            'bg-red-500',
-            'text-white'
-        );
+        badge.classList.remove('badge-pulse');
+        void badge.offsetWidth;
+        badge.classList.add('badge-pulse');
 
     } else {
 
         badge.classList.add('hidden');
 
     }
-}
 
+}
 async function markAllNotificationsRead() {
 
     try {
