@@ -152,7 +152,7 @@
                         </div>
 
                         <!-- CURRENT PASSWORD (for email change) -->
-                        <div id="current-password-container">
+                        <div id="current-password-container" class="hidden">
 
                             <label class="block text-sm font-medium text-gray-700 mb-1">
                                 Current Password <span class="text-red-500">*</span>
@@ -164,7 +164,7 @@
                                 placeholder="Enter current password to change email">
 
                             <p class="text-xs text-gray-500 mt-1">
-                                Required only when changing your email.
+                                Enter your current password to change your email.
                             </p>
 
                         </div>
@@ -334,6 +334,8 @@
 
     <script>
 
+        let originalEmail = '';
+
         document.addEventListener('DOMContentLoaded', async () => {
 
             const user = api.getUser();
@@ -351,6 +353,17 @@
             loadUser(user);
 
             await refreshUser();
+
+            originalEmail = document.getElementById('email').value;
+
+            document.getElementById('email').addEventListener('input', function () {
+                const container = document.getElementById('current-password-container');
+                if (this.value !== originalEmail) {
+                    container.classList.remove('hidden');
+                } else {
+                    container.classList.add('hidden');
+                }
+            });
 
         });
 

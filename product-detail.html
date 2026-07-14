@@ -54,13 +54,26 @@
                             </div>
                         </div>
                     </div>
-                    <div id="nav-auth">
+                    <div id="nav-auth" class="hidden">
                         <a href="login.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Login</a>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
+
+    <script>
+        (function() {
+            var navAuth = document.getElementById('nav-auth');
+            var navUser = document.getElementById('nav-user');
+            if (localStorage.getItem('token') && localStorage.getItem('user')) {
+                if (navUser) navUser.classList.remove('hidden');
+            } else {
+                if (navAuth) navAuth.classList.remove('hidden');
+                if (navUser) navUser.classList.add('hidden');
+            }
+        })();
+    </script>
 
     <!-- Toast Notification -->
     <div id="toast" class="hidden fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50"></div>

@@ -27,7 +27,7 @@
                     <a href="products.html" class="text-gray-700 hover:text-indigo-600 font-medium">Products</a>
                     <!-- Seller: My Products link in navbar -->
                     <a id="nav-my-products" href="seller-products.html" class="hidden text-gray-700 hover:text-indigo-600 font-medium">My Products</a>
-                    <div id="nav-auth">
+                    <div id="nav-auth" class="hidden">
                         <a href="login.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Login</a>
                         <a href="register.html" class="ml-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Sign Up</a>
                     </div>
@@ -97,6 +97,19 @@
             </div>
         </div>
     </nav>
+
+    <script>
+        (function() {
+            var navAuth = document.getElementById('nav-auth');
+            var navUser = document.getElementById('nav-user');
+            if (localStorage.getItem('token') && localStorage.getItem('user')) {
+                if (navUser) navUser.classList.remove('hidden');
+            } else {
+                if (navAuth) navAuth.classList.remove('hidden');
+                if (navUser) navUser.classList.add('hidden');
+            }
+        })();
+    </script>
 
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
