@@ -74,9 +74,10 @@
                         </div>
                     </div>
                     <button onclick="proceedToCheckout()" id="checkout-btn" disabled
-                        class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed">
+                        class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50">
                         Proceed to Checkout
                     </button>
+                    <div id="checkout-warning" class="hidden text-red-500 text-xs mt-1 text-center">Please add at least one item before checkout.</div>
                     <a href="products.html" class="block text-center mt-4 text-indigo-600 hover:text-indigo-800">
                         Continue Shopping
                     </a>
@@ -119,11 +120,12 @@
                     </div>
                 `;
                 checkoutBtn.disabled = true;
+                document.getElementById('checkout-warning').classList.add('hidden');
                 updateSummary();
                 return;
             }
             
-            checkoutBtn.disabled = false;
+            updateCheckoutButtonState();
             
             container.innerHTML = cart.map((item, index) => `
                 <div class="bg-white rounded-lg shadow p-4 flex items-center gap-4">
@@ -201,7 +203,28 @@
             localStorage.setItem('cart', JSON.stringify(cart));
         }
         
+        function getTotalValidQuantity() {
+            return cart.reduce((sum, item) => sum + (item.quantity > 0 ? item.quantity : 0), 0);
+        }
+        
+        function updateCheckoutButtonState() {
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const warning = document.getElementById('checkout-warning');
+            const validQty = getTotalValidQuantity();
+            const disabled = validQty === 0;
+            checkoutBtn.disabled = disabled;
+            if (disabled) {
+                warning.classList.remove('hidden');
+            } else {
+                warning.classList.add('hidden');
+            }
+        }
+        
         function proceedToCheckout() {
+            if (getTotalValidQuantity() === 0) {
+                showToast('Please add at least one item before checkout.', 'error');
+                return;
+            }
             const user = api.getUser();
             if (!user) {
                 showToast('Please login to checkout', 'error');
