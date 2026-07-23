@@ -146,8 +146,8 @@
 
                             <input type="email"
                                 id="email"
-                                required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                readonly
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed text-gray-600">
 
                         </div>
 
@@ -447,13 +447,6 @@
                     document.getElementById('address').value
                 );
 
-                const user = api.getUser();
-                const newEmail = document.getElementById('email').value.trim();
-
-                if (newEmail !== user.email) {
-                    formData.append('email', newEmail);
-                }
-
                 const avatarInput =
                     document.getElementById('avatar');
 
@@ -474,18 +467,6 @@
                             formData,
                             'PUT'
                         );
-
-                    if (data.needs_verification) {
-                        api.removeToken();
-                        api.removeUser();
-                        localStorage.removeItem('cart');
-                        if (data.email) {
-                            sessionStorage.setItem('verify_email', data.email);
-                        }
-                        sessionStorage.setItem('verify_message', 'Email changed successfully. Please verify your new email.');
-                        window.location.href = './verify-email.html';
-                        return;
-                    }
 
                     api.setUser(data.user);
 
