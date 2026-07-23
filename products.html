@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products - ChattoShop</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css-all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -175,8 +175,49 @@
                 </div>
                 
                 <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="col-span-full text-center py-8">
-                        <i class="fas fa-spinner fa-spin text-4xl text-indigo-600"></i>
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                        <div class="h-48 bg-gray-200"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                            <div class="flex justify-between items-center">
+                                <div class="h-5 bg-gray-200 rounded w-1/4"></div>
+                                <div class="h-8 bg-gray-200 rounded w-16"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                        <div class="h-48 bg-gray-200"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                            <div class="flex justify-between items-center">
+                                <div class="h-5 bg-gray-200 rounded w-1/4"></div>
+                                <div class="h-8 bg-gray-200 rounded w-16"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                        <div class="h-48 bg-gray-200"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                            <div class="flex justify-between items-center">
+                                <div class="h-5 bg-gray-200 rounded w-1/4"></div>
+                                <div class="h-8 bg-gray-200 rounded w-16"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                        <div class="h-48 bg-gray-200"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                            <div class="flex justify-between items-center">
+                                <div class="h-5 bg-gray-200 rounded w-1/4"></div>
+                                <div class="h-8 bg-gray-200 rounded w-16"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -322,8 +363,27 @@
             }
         }
         
+        function showSkeleton() {
+            const grid = document.getElementById('products-grid');
+            if (!grid) return;
+            grid.innerHTML = Array(4).fill(`
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                        <div class="h-48 bg-gray-200"></div>
+                        <div class="p-4 space-y-3">
+                            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                            <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                            <div class="flex justify-between items-center">
+                                <div class="h-5 bg-gray-200 rounded w-1/4"></div>
+                                <div class="h-8 bg-gray-200 rounded w-16"></div>
+                            </div>
+                        </div>
+                    </div>
+            `).join('');
+        }
+
         async function loadProducts(page = 1) {
             const grid = document.getElementById('products-grid');
+            showSkeleton();
             currentPage = page;
             
             const params = new URLSearchParams();
