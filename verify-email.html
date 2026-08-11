@@ -274,7 +274,10 @@
                     } catch (error) {
                         let msg = error.data?.message || error.message || 'Failed to resend OTP';
                         if (error.status === 429) {
-                            msg = 'Too many resend requests. Please wait a minute before requesting another OTP.';
+                            const retryAfter = error.data?.retry_after;
+                            msg = retryAfter
+                                ? `Too many requests. Please try again in ${retryAfter} seconds.`
+                                : 'Too many requests. Please wait before trying again.';
                         }
 
                         resendMessage.textContent = msg;

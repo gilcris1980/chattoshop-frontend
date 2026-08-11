@@ -127,7 +127,7 @@ const api = {
                 data = JSON.parse(text);
             } catch {
                 console.error('Failed to parse response:', text);
-                throw new Error(`Server error: ${response.status} - ${text.substring(0, 100)}`);
+                throw new Error('Something went wrong while processing your request. Please try again later.');
             }
             
             console.log('Response:', response.status, data);
@@ -143,7 +143,7 @@ const api = {
                     window.location.href = './verify-email.html';
                     throw new Error('Email not verified');
                 }
-                const error = new Error(data.message || data.error || 'Request failed');
+                const error = new Error(data.message || data.error || 'Something went wrong while processing your request. Please try again later.');
                 error.data = data;
                 error.status = response.status;
                 throw error;
