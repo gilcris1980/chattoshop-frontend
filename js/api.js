@@ -133,7 +133,7 @@ const api = {
             console.log('Response:', response.status, data);
             
             if (!response.ok) {
-                if (response.status === 403 && (data.needs_verification || (data.message && data.message.includes('not verified')))) {
+                if (!options.skipVerificationRedirect && response.status === 403 && (data.needs_verification || (data.message && data.message.includes('not verified')))) {
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
                     if (data.email) {
@@ -162,11 +162,12 @@ const api = {
         return this.request(endpoint, { method: 'GET' });
     },
     
-    post(endpoint, data) {
+    post(endpoint, data, options = {}) {
         console.log('API POST:', this.baseUrl + endpoint, data);
         return this.request(endpoint, {
             method: 'POST',
             body: JSON.stringify(data),
+            ...options,
         });
     },
     
