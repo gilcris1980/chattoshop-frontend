@@ -316,6 +316,22 @@
                     return;
                 }
                 
+                const statusPriority = {
+                    delivered: 0,
+                    completed: 0,
+                    shipped: 1,
+                    processing: 2,
+                    pending: 3,
+                    cancelled: 4
+                };
+
+                orders.sort((a, b) => {
+                    const pa = statusPriority[a.status] ?? 5;
+                    const pb = statusPriority[b.status] ?? 5;
+                    if (pa !== pb) return pa - pb;
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
+
                 const statusColors = {
                     pending: 'bg-yellow-100 text-yellow-800',
                     processing: 'bg-blue-100 text-blue-800',

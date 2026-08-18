@@ -190,7 +190,9 @@
                 });
                 
                 localStorage.removeItem('cart');
-                showToast('Order placed successfully! Order ID: #' + order.order?.id, 'success');
+                const orders = order.orders && order.orders.length ? order.orders : (order.order ? [order.order] : []);
+                const orderIds = orders.map(o => o.id).join(', ');
+                showToast('Order placed successfully! Order ID: #' + orderIds, 'success');
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 2000);
