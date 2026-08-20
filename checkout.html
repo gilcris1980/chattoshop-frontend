@@ -111,14 +111,9 @@
 
     <script src="js/api.js"></script>
     <script>
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cart = [];
         
         document.addEventListener('DOMContentLoaded', async () => {
-            if (cart.length === 0) {
-                window.location.href = 'cart.html';
-                return;
-            }
-            
             const user = api.getUser();
             if (!user) {
                 window.location.href = 'login.html';
@@ -132,6 +127,13 @@
                 } else {
                     window.location.href = 'dashboard.html';
                 }
+                return;
+            }
+            
+            cart = await api.cartGetItems();
+
+            if (cart.length === 0) {
+                window.location.href = 'cart.html';
                 return;
             }
             
@@ -189,7 +191,7 @@
                     notes: document.getElementById('notes').value
                 });
                 
-                localStorage.removeItem('cart');
+                await api.cartClear();
                 const orders = order.orders && order.orders.length ? order.orders : (order.order ? [order.order] : []);
                 const orderIds = orders.map(o => o.id).join(', ');
                 showToast('Order placed successfully! Order ID: #' + orderIds, 'success');

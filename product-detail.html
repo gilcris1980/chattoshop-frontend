@@ -179,7 +179,6 @@
 
     <script src="js/api.js"></script>
     <script>
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let currentProduct = null;
         let quantity = 1;
         let isOwner = false;
@@ -341,49 +340,26 @@
             document.getElementById('quantity').textContent = quantity;
         }
         
-        function addToCartFromDetail() {
+        async function addToCartFromDetail() {
             if (!currentProduct) return;
 
-            const existing = cart.find(item => item.id === currentProduct.id);
-            const currentQty = existing ? existing.quantity : 0;
-            const totalQty = currentQty + quantity;
-
-            if (totalQty > currentProduct.stock) {
-                showToast('Maximum available stock reached.', 'error');
-                return;
-            }
-
-            if (existing) {
-                existing.quantity = totalQty;
-            } else {
-                cart.push({
+            try {
+                await api.cartAdd({
                     id: currentProduct.id,
                     name: currentProduct.name,
-                    price: parseFloat(currentProduct.price),
+                    price: currentProduct.price,
                     image: currentProduct.image,
-                    stock: currentProduct.stock,
-                    quantity: quantity
-                });
+                    stock: currentProduct.stock
+                }, quantity);
+                updateCartUI();
+                showToast('Product added to cart!', 'success');
+            } catch (error) {
+                showToast(error.message || 'Failed to add to cart', 'error');
             }
-
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartUI();
-            showToast('Product added to cart!', 'success');
         }
         
         function updateCartUI() {
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const el = document.getElementById('cart-count');
-            if (!el) return;
-            el.textContent = count;
-            if (count > 0) {
-                el.classList.remove('hidden');
-                el.classList.remove('badge-pulse');
-                void el.offsetWidth;
-                el.classList.add('badge-pulse');
-            } else {
-                el.classList.add('hidden');
-            }
+            api.updateCartBadge();
         }
         
         function showToast(message, type) {

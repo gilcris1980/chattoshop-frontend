@@ -1,15 +1,13 @@
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let dropdownOpen = false;
-
 document.addEventListener('DOMContentLoaded', () => {
 
     console.log('MAIN JS LOADED');
 
+    setupEventListeners();
     checkAuth();
     loadCategories();
     loadProducts();
     updateCartUI();
-    setupEventListeners();
 
 });
 
@@ -421,60 +419,27 @@ async function loadProducts() {
 
 }
 
-function addToCart(id, name, price, image, stock) {
+async function addToCart(id, name, price, image, stock) {
 
-    const existing = cart.find(item => item.id === id);
-    const currentQty = existing ? existing.quantity : 0;
+    try {
 
-    if (currentQty >= stock) {
-        showToast('Maximum available stock reached.');
-        return;
-    }
+        await api.cartAdd({ id, name, price, image, stock }, 1);
 
-    if (existing) {
+        updateCartUI();
 
-        existing.quantity++;
+        showToast('Added to cart');
 
-    } else {
+    } catch (error) {
 
-        cart.push({
-            id,
-            name,
-            price: parseFloat(price),
-            image,
-            stock,
-            quantity: 1
-        });
+        showToast(error.message || 'Failed to add to cart');
 
     }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-
-    updateCartUI();
-
-    showToast('Added to cart');
 
 }
 
 function updateCartUI() {
 
-    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-    const cartCount = document.getElementById('cart-count');
-
-    if (cartCount) {
-
-        cartCount.textContent = count;
-
-        if (count > 0) {
-            cartCount.classList.remove('hidden');
-            cartCount.classList.remove('badge-pulse');
-            void cartCount.offsetWidth;
-            cartCount.classList.add('badge-pulse');
-        } else {
-            cartCount.classList.add('hidden');
-        }
-
-    }
+    api.updateCartBadge();
 
 }
 

@@ -110,6 +110,29 @@
         })();
     </script>
 
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+        <div class="px-4 py-2 space-y-2">
+            <a href="index.html" class="block py-2 text-gray-700">Home</a>
+            <a href="products.html" class="block py-2 text-gray-700">Products</a>
+            <div id="mobile-auth">
+                <a href="login.html" class="block py-2 text-indigo-600">Login</a>
+                <a href="register.html" class="block py-2 text-indigo-600">Sign Up</a>
+            </div>
+            <div id="mobile-user" class="hidden">
+                <a href="profile.html" class="block py-2 text-gray-700">Profile</a>
+                <a id="mobile-my-orders" href="orders.html" class="block py-2 text-gray-700">My Orders</a>
+                <a id="mobile-dashboard" href="dashboard.html" class="hidden block py-2 text-gray-700">My Purchases</a>
+                <a id="mobile-my-products" href="seller-products.html" class="hidden block py-2 text-gray-700">My Products</a>
+                <a id="mobile-seller" href="seller-dashboard.html" class="hidden block py-2 text-blue-600">Seller Dashboard</a>
+                <a id="mobile-admin" href="admin-dashboard.html" class="hidden block py-2 text-red-600">Admin Panel</a>
+                <button onclick="logout()" class="block w-full text-left py-2 text-red-600">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-8">
@@ -236,11 +259,12 @@
 
     <script src="js/api.js"></script>
     <script>
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let currentPage = 1;
         let dropdownOpen = false;
         
         document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('mobile-menu-btn')?.addEventListener('click', toggleMobileMenu);
+            
             loadCategories();
             loadProducts();
             updateCartUI();
@@ -266,6 +290,13 @@
                 document.getElementById('category-filter').value = urlParams.get('category');
             }
         });
+        
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
         
         function toggleDropdown() {
             dropdownOpen = !dropdownOpen;
@@ -341,9 +372,44 @@
                     if (dashboardLink) dashboardLink.classList.remove('hidden');
                     if (myOrdersLink) myOrdersLink.classList.add('hidden');
                 }
+                
+                // MOBILE MENU AUTH STATE
+                const mobileAuth = document.getElementById('mobile-auth');
+                const mobileUser = document.getElementById('mobile-user');
+                if (mobileAuth) mobileAuth.classList.add('hidden');
+                if (mobileUser) mobileUser.classList.remove('hidden');
+                
+                const mobileDashboard = document.getElementById('mobile-dashboard');
+                const mobileMyProducts = document.getElementById('mobile-my-products');
+                const mobileSeller = document.getElementById('mobile-seller');
+                const mobileAdmin = document.getElementById('mobile-admin');
+                const mobileMyOrders = document.getElementById('mobile-my-orders');
+                
+                mobileDashboard?.classList.add('hidden');
+                mobileMyProducts?.classList.add('hidden');
+                mobileSeller?.classList.add('hidden');
+                mobileAdmin?.classList.add('hidden');
+                mobileMyOrders?.classList.add('hidden');
+                
+                if (user.role === 'seller') {
+                    if (mobileMyProducts) mobileMyProducts.classList.remove('hidden');
+                    if (mobileSeller) mobileSeller.classList.remove('hidden');
+                }
+                else if (user.role === 'system_admin' || user.role === 'admin') {
+                    if (mobileDashboard) mobileDashboard.classList.remove('hidden');
+                    if (mobileAdmin) mobileAdmin.classList.remove('hidden');
+                }
+                else {
+                    if (mobileDashboard) mobileDashboard.classList.remove('hidden');
+                }
             } else {
                 if (navAuth) navAuth.classList.remove('hidden');
                 if (navUser) navUser.classList.add('hidden');
+                
+                const mobileAuth = document.getElementById('mobile-auth');
+                const mobileUser = document.getElementById('mobile-user');
+                if (mobileAuth) mobileAuth.classList.remove('hidden');
+                if (mobileUser) mobileUser.classList.add('hidden');
             }
         }
         
@@ -492,36 +558,18 @@
             loadProducts(1);
         }
         
-        function addToCart(id, name, price, image, stock) {
-            const existing = cart.find(item => item.id === id);
-            const currentQty = existing ? existing.quantity : 0;
-            if (currentQty >= stock) {
-                showToast('Maximum available stock reached.');
-                return;
+        async function addToCart(id, name, price, image, stock) {
+            try {
+                await api.cartAdd({ id, name, price, image, stock }, 1);
+                updateCartUI();
+                showToast('Product added to cart!');
+            } catch (error) {
+                showToast(error.message || 'Failed to add to cart');
             }
-            if (existing) {
-                existing.quantity++;
-            } else {
-                cart.push({ id, name, price: parseFloat(price), image, stock, quantity: 1 });
-            }
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartUI();
-            showToast('Product added to cart!');
         }
         
         function updateCartUI() {
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const el = document.getElementById('cart-count');
-            if (!el) return;
-            el.textContent = count;
-            if (count > 0) {
-                el.classList.remove('hidden');
-                el.classList.remove('badge-pulse');
-                void el.offsetWidth;
-                el.classList.add('badge-pulse');
-            } else {
-                el.classList.add('hidden');
-            }
+            api.updateCartBadge();
         }
         
         function showToast(message) {

@@ -240,6 +240,154 @@ const api = {
         }
         
         return data;
+    },
+
+    /*
+    |--------------------------------------------------------------------------
+    | CART
+    | Server cart for logged-in customers, localStorage for guests.
+    |--------------------------------------------------------------------------
+    */
+
+    isLoggedIn() {
+        return !!this.getToken() && !!this.getUser();
+    },
+
+    getLocalCart() {
+        try {
+            return JSON.parse(localStorage.getItem('cart')) || [];
+        } catch (e) {
+            return [];
+        }
+    },
+
+    setLocalCart(items) {
+        localStorage.setItem('cart', JSON.stringify(items));
+    },
+
+    clearLocalCart() {
+        localStorage.removeItem('cart');
+    },
+
+    async mergeLocalCartToServer() {
+        if (!this.isLoggedIn()) return;
+        const local = this.getLocalCart();
+        if (!local.length) return;
+        for (const item of local) {
+            try {
+                await this.post('/cart/items', {
+                    product_id: item.id,
+                    quantity: Math.min(item.quantity, item.stock || item.quantity)
+                });
+            } catch (e) {
+                // skip items that are no longer available
+            }
+        }
+        this.clearLocalCart();
+    },
+
+    async cartGetItems() {
+        const user = this.getUser();
+        if (this.isLoggedIn() && user && user.role === 'customer') {
+            await this.mergeLocalCartToServer();
+            const data = await this.get('/cart');
+            return (data.items || []).map(item => ({
+                id: item.product_id,
+                name: item.product?.name || 'Product',
+                price: parseFloat(item.product?.price || 0),
+                image: item.product?.image || '',
+                stock: item.product?.stock || 0,
+                quantity: item.quantity
+            }));
+        }
+        if (this.isLoggedIn()) {
+            return [];
+        }
+        return this.getLocalCart();
+    },
+
+    async cartCount() {
+        const items = await this.cartGetItems();
+        return items.reduce((sum, item) => sum + item.quantity, 0);
+    },
+
+    async cartAdd(product, qty) {
+        qty = parseInt(qty, 10) || 1;
+        if (qty < 1) throw new Error('Quantity must be at least 1.');
+        if (this.isLoggedIn()) {
+            return await this.post('/cart/items', {
+                product_id: product.id,
+                quantity: qty
+            });
+        }
+        const items = this.getLocalCart();
+        const existing = items.find(item => item.id === product.id);
+        const totalQty = (existing ? existing.quantity : 0) + qty;
+        if (totalQty > product.stock) throw new Error('Maximum available stock reached.');
+        if (existing) {
+            existing.quantity = totalQty;
+        } else {
+            items.push({
+                id: product.id,
+                name: product.name,
+                price: parseFloat(product.price),
+                image: product.image || '',
+                stock: product.stock,
+                quantity: qty
+            });
+        }
+        this.setLocalCart(items);
+    },
+
+    async cartSetQuantity(productId, qty) {
+        qty = parseInt(qty, 10);
+        if (qty < 1) throw new Error('Quantity must be at least 1.');
+        if (this.isLoggedIn()) {
+            return await this.put('/cart/items/' + productId, { quantity: qty });
+        }
+        const items = this.getLocalCart();
+        const existing = items.find(item => item.id === productId);
+        if (!existing) throw new Error('Item not found in cart.');
+        if (qty > existing.stock) throw new Error('Maximum available stock reached.');
+        existing.quantity = qty;
+        this.setLocalCart(items);
+    },
+
+    async cartRemoveItem(productId) {
+        if (this.isLoggedIn()) {
+            return await this.delete('/cart/items/' + productId);
+        }
+        this.setLocalCart(this.getLocalCart().filter(item => item.id !== productId));
+    },
+
+    async cartClear() {
+        if (this.isLoggedIn()) {
+            try {
+                await this.delete('/cart');
+            } catch (e) {
+                // ignore clear failures
+            }
+        }
+        this.clearLocalCart();
+    },
+
+    async updateCartBadge() {
+        const el = document.getElementById('cart-count');
+        if (!el) return;
+        try {
+            const count = await this.cartCount();
+            el.textContent = count;
+            if (count > 0) {
+                el.classList.remove('hidden');
+                el.classList.remove('badge-pulse');
+                void el.offsetWidth;
+                el.classList.add('badge-pulse');
+            } else {
+                el.classList.add('hidden');
+            }
+        } catch (error) {
+            console.error('Failed to load cart count:', error);
+        }
     }
 };
 

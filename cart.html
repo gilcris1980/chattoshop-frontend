@@ -88,9 +88,9 @@
 
     <script src="js/api.js"></script>
     <script>
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cart = [];
         
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const user = api.getUser();
             if (user && user.role === 'seller') {
                 document.getElementById('seller-warning').classList.remove('hidden');
@@ -102,10 +102,15 @@
                 window.location.href = 'dashboard.html';
                 return;
             }
-            renderCart();
-            updateCartUI();
+            await loadCart();
             document.getElementById('cart-btn').addEventListener('click', () => window.location.href = 'cart.html');
         });
+        
+        async function loadCart() {
+            cart = await api.cartGetItems();
+            renderCart();
+            updateCartUI();
+        }
         
         function renderCart() {
             const container = document.getElementById('cart-items');
@@ -155,7 +160,7 @@
             updateSummary();
         }
         
-        function updateQuantity(index, change) {
+        async function updateQuantity(index, change) {
             const item = cart[index];
             const newQty = item.quantity + change;
             if (newQty < 1) {
@@ -165,19 +170,23 @@
                 showToast('Maximum available stock reached.', 'error');
                 return;
             }
-            item.quantity = newQty;
-            localStorage.setItem('cart', JSON.stringify(cart));
-            renderCart();
-            updateCartUI();
+            try {
+                await api.cartSetQuantity(item.id, newQty);
+                await loadCart();
+            } catch (error) {
+                showToast(error.message || 'Failed to update quantity', 'error');
+            }
         }
         
-        function removeFromCart(index) {
+        async function removeFromCart(index) {
             const itemName = cart[index].name;
-            cart.splice(index, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            renderCart();
-            updateCartUI();
-            showToast(`${itemName} removed from cart`, 'success');
+            try {
+                await api.cartRemoveItem(cart[index].id);
+                await loadCart();
+                showToast(`${itemName} removed from cart`, 'success');
+            } catch (error) {
+                showToast(error.message || 'Failed to remove item', 'error');
+            }
         }
         
         function updateSummary() {
@@ -187,20 +196,7 @@
         }
         
         function updateCartUI() {
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const el = document.getElementById('cart-count');
-            if (el) {
-                el.textContent = count;
-                if (count > 0) {
-                    el.classList.remove('hidden');
-                    el.classList.remove('badge-pulse');
-                    void el.offsetWidth;
-                    el.classList.add('badge-pulse');
-                } else {
-                    el.classList.add('hidden');
-                }
-            }
-            localStorage.setItem('cart', JSON.stringify(cart));
+            api.updateCartBadge();
         }
         
         function getTotalValidQuantity() {
