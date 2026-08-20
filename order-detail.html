@@ -147,11 +147,37 @@
         </div>
     </div>
 
+    <!-- Cancel Confirmation Modal -->
+    <div id="cancel-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">Cancel Order</h3>
+                    <p class="text-gray-600 mt-1">Are you sure you want to cancel this order?</p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button id="cancel-keep-btn" onclick="closeCancelModal()"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300">
+                    No / Keep Order
+                </button>
+                <button id="cancel-confirm-btn" onclick="confirmCancel()"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">
+                    <i class="fas fa-times mr-1"></i>Yes, Cancel Order
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/api.js"></script>
     <script>
         let orderId = null;
         let orderData = null;
         let dropdownOpen = false;
+        let isCancelling = false;
 
         document.addEventListener('DOMContentLoaded', () => {
             const user = api.getUser();
@@ -300,18 +326,36 @@
             }
         }
 
-        async function cancelOrder() {
-            if (!orderData || orderData.status !== 'pending') return;
+        function cancelOrder() {
+            if (!orderData || orderData.status !== 'pending' || isCancelling) return;
 
-            if (!confirm('Are you sure you want to cancel this order?')) return;
+            document.getElementById('cancel-modal').classList.remove('hidden');
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancel-modal').classList.add('hidden');
+        }
+
+        async function confirmCancel() {
+            if (!orderData || orderData.status !== 'pending' || isCancelling) return;
+
+            isCancelling = true;
+
+            const confirmBtn = document.getElementById('cancel-confirm-btn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Cancelling...';
 
             try {
                 await api.post('/orders/' + orderId + '/cancel');
                 showToast('Order cancelled successfully', 'success');
+                closeCancelModal();
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
             } catch (error) {
+                isCancelling = false;
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-times mr-1"></i>Yes, Cancel Order';
                 showToast(error.message || 'Failed to cancel order', 'error');
             }
         }

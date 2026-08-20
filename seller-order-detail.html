@@ -155,7 +155,7 @@
         let orderData = null;
         let dropdownOpen = false;
 
-        const STATUS_FLOW = ['pending', 'processing', 'shipped', 'delivered'];
+        const STATUS_FLOW = ['pending', 'processing', 'shipped', 'delivered', 'completed'];
         const STATUS_LABELS = {
             pending: 'Pending',
             processing: 'Processing',
@@ -304,11 +304,11 @@
             const container = document.getElementById('status-flow');
             const currentIdx = STATUS_FLOW.indexOf(currentStatus);
 
-            if (currentStatus === 'completed' || currentStatus === 'cancelled') {
+            if (currentStatus === 'cancelled') {
                 container.innerHTML = `
                     <div class="text-center py-4">
                         <span class="px-6 py-3 rounded-full text-lg font-semibold ${STATUS_COLORS[currentStatus] || 'bg-gray-100 text-gray-800'}">
-                            <i class="fas ${currentStatus === 'completed' ? 'fa-check-circle' : 'fa-times-circle'} mr-2"></i>
+                            <i class="fas fa-times-circle mr-2"></i>
                             ${STATUS_LABELS[currentStatus] || currentStatus}
                         </span>
                     </div>

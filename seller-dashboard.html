@@ -444,6 +444,19 @@
             const orders =
                 data.data || data;
 
+            const STATUS_PRIORITY = {
+                completed: 0,
+                delivered: 1,
+                shipped: 2,
+                processing: 3,
+                pending: 4,
+                cancelled: 5
+            };
+
+            if (Array.isArray(orders)) {
+                orders.sort((a, b) => (STATUS_PRIORITY[a.status] ?? 99) - (STATUS_PRIORITY[b.status] ?? 99));
+            }
+
             if (!orders || orders.length === 0) {
 
                 document.getElementById(
@@ -537,28 +550,6 @@
     <span class="px-3 py-1 rounded-full text-sm font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}">
         ${order.status}
     </span>
-
-    <div class="mt-2">
-
-        ${(() => {
-            const statusOptions = {
-                pending: [['processing', 'Processing'], ['cancelled', 'Cancel']],
-                processing: [['shipped', 'Shipped'], ['cancelled', 'Cancel']],
-                shipped: [['delivered', 'Delivered']],
-                delivered: [['completed', 'Completed']],
-                completed: [],
-                cancelled: []
-            };
-            const opts = statusOptions[order.status] || [];
-            return opts.length === 0 ? '' : `
-                <select onclick="event.stopPropagation()" onchange="updateOrderStatus(${order.id}, this.value)" class="border rounded px-3 py-2 text-sm bg-white">
-                    <option value="">Update Status</option>
-                    ${opts.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}
-                </select>
-            `;
-        })()}
-
-    </div>
 
 </div>
 
@@ -670,28 +661,6 @@
     }
 
     setInterval(refreshSellerStatus, 30000);
-
-async function updateOrderStatus(orderId, status) {
-
-    try {
-
-        await api.put(`/orders/${orderId}/status`, {
-            status: status
-        });
-
-        await loadSellerOrders();
-
-        alert('Order status updated successfully');
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert('Failed to update order status');
-
-    }
-
-}
 
 </script>
 
