@@ -65,9 +65,9 @@
                 
                 <div class="bg-white rounded-lg shadow p-6">
                     <h3 class="font-semibold text-lg mb-4">Payment Method</h3>
-                    <div class="flex items-center p-4 border border-indigo-600 bg-indigo-50 rounded-lg">
+                    <div class="flex items-center p-4 border border-indigo-600 bg-indigo-50 rounded-lg flex-wrap gap-2">
                         <input type="radio" name="payment" value="cod" checked class="mr-3">
-                        <div>
+                        <div class="min-w-0">
                             <p class="font-semibold">Cash on Delivery (COD)</p>
                             <p class="text-sm text-gray-600">Pay when you receive your order</p>
                         </div>
@@ -147,12 +147,12 @@
             const container = document.getElementById('order-items');
             
             container.innerHTML = cart.map(item => `
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <span class="text-gray-600">${item.name}</span>
-                        <span class="text-sm text-gray-500">x${item.quantity}</span>
+                <div class="flex justify-between items-center gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-gray-600 truncate">${item.name}</span>
+                        <span class="text-sm text-gray-500 flex-shrink-0">x${item.quantity}</span>
                     </div>
-                    <span class="font-semibold">${api.formatCurrency(item.price * item.quantity)}</span>
+                    <span class="font-semibold flex-shrink-0">${api.formatCurrency(item.price * item.quantity)}</span>
                 </div>
             `).join('');
             

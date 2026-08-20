@@ -202,12 +202,24 @@ function checkAuth() {
         // ROLE NAVIGATION
         setupRoleNavigation(user);
 
+        // MOBILE MENU AUTH STATE
+        const mobileAuth = document.getElementById('mobile-auth');
+        const mobileUser = document.getElementById('mobile-user');
+        if (mobileAuth) mobileAuth.classList.add('hidden');
+        if (mobileUser) mobileUser.classList.remove('hidden');
+
         loadNotifications();
 
     } else {
 
         navAuth?.classList.remove('hidden');
         navUser?.classList.add('hidden');
+
+        // MOBILE MENU AUTH STATE
+        const mobileAuth = document.getElementById('mobile-auth');
+        const mobileUser = document.getElementById('mobile-user');
+        if (mobileAuth) mobileAuth.classList.remove('hidden');
+        if (mobileUser) mobileUser.classList.add('hidden');
 
     }
 
@@ -223,12 +235,23 @@ function setupRoleNavigation(user) {
     const cartBtn = document.getElementById('cart-btn');
     const myOrdersLink = document.getElementById('my-orders-link');
 
+    // MOBILE MENU
+    const mobileDashboard = document.getElementById('mobile-dashboard');
+    const mobileMyProducts = document.getElementById('mobile-my-products');
+    const mobileSeller = document.getElementById('mobile-seller');
+    const mobileAdmin = document.getElementById('mobile-admin');
+    const mobileMyOrders = document.getElementById('mobile-my-orders');
+
     // RESET
     dashboardLink?.classList.add('hidden');
     myProductsLink?.classList.add('hidden');
     sellerLink?.classList.add('hidden');
     adminLink?.classList.add('hidden');
     navMyProducts?.classList.add('hidden');
+    mobileDashboard?.classList.add('hidden');
+    mobileMyProducts?.classList.add('hidden');
+    mobileSeller?.classList.add('hidden');
+    mobileAdmin?.classList.add('hidden');
 
     // SELLER
     if (user.role === 'seller') {
@@ -238,6 +261,9 @@ function setupRoleNavigation(user) {
         navMyProducts?.classList.remove('hidden');
         cartBtn?.classList.add('hidden');
         myOrdersLink?.classList.add('hidden');
+        mobileMyProducts?.classList.remove('hidden');
+        mobileSeller?.classList.remove('hidden');
+        mobileMyOrders?.classList.add('hidden');
 
     }
 
@@ -251,6 +277,9 @@ function setupRoleNavigation(user) {
         adminLink?.classList.remove('hidden');
         cartBtn?.classList.add('hidden');
         myOrdersLink?.classList.add('hidden');
+        mobileDashboard?.classList.remove('hidden');
+        mobileAdmin?.classList.remove('hidden');
+        mobileMyOrders?.classList.add('hidden');
 
     }
 
@@ -259,6 +288,8 @@ function setupRoleNavigation(user) {
 
         dashboardLink?.classList.remove('hidden');
         myOrdersLink?.classList.add('hidden');
+        mobileDashboard?.classList.remove('hidden');
+        mobileMyOrders?.classList.add('hidden');
 
     }
 
