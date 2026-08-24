@@ -200,14 +200,16 @@ function checkAuth() {
         // ROLE NAVIGATION
         setupRoleNavigation(user);
 
-        // MOBILE MENU AUTH STATE
+// MOBILE MENU AUTH STATE
         const mobileAuth = document.getElementById('mobile-auth');
         const mobileUser = document.getElementById('mobile-user');
         if (mobileAuth) mobileAuth.classList.add('hidden');
         if (mobileUser) mobileUser.classList.remove('hidden');
 
-        loadNotifications();
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        if (mobileMenuBtn) mobileMenuBtn.classList.add('hidden');
 
+        loadNotifications();
     } else {
 
         navAuth?.classList.remove('hidden');
@@ -218,6 +220,9 @@ function checkAuth() {
         const mobileUser = document.getElementById('mobile-user');
         if (mobileAuth) mobileAuth.classList.remove('hidden');
         if (mobileUser) mobileUser.classList.add('hidden');
+
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        if (mobileMenuBtn) mobileMenuBtn.classList.remove('hidden');
 
     }
 

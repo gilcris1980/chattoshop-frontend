@@ -378,7 +378,10 @@
                 const mobileUser = document.getElementById('mobile-user');
                 if (mobileAuth) mobileAuth.classList.add('hidden');
                 if (mobileUser) mobileUser.classList.remove('hidden');
-                
+
+                const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+                if (mobileMenuBtn) mobileMenuBtn.classList.add('hidden');
+
                 const mobileDashboard = document.getElementById('mobile-dashboard');
                 const mobileMyProducts = document.getElementById('mobile-my-products');
                 const mobileSeller = document.getElementById('mobile-seller');
@@ -410,6 +413,9 @@
                 const mobileUser = document.getElementById('mobile-user');
                 if (mobileAuth) mobileAuth.classList.remove('hidden');
                 if (mobileUser) mobileUser.classList.add('hidden');
+
+                const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+                if (mobileMenuBtn) mobileMenuBtn.classList.remove('hidden');
             }
         }
         
