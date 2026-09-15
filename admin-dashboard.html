@@ -63,7 +63,17 @@
 
     <!-- Mobile navigation drawer: slide-in from left -->
     <div id="admin-mobile-drawer" class="block md:hidden fixed inset-0 top-0 left-0 bg-gray-900 z-40 transform transition-transform duration-300 ease-in-out -translate-x-full">
-        <button onclick="toggleMobileMenu()" class="absolute top-4 left-4 text-white text-2xl opacity-70 hover-opacity-100">&times;</button>
+        <!-- Drawer header: branding + close button -->
+        <div class="h-14 bg-gray-900 border-b border-gray-700 p-3 flex items-center justify-between z-50">
+            <div class="flex items-center space-x-2">
+                <h1 class="text-xl font-bold text-indigo-400">ChattoShop</h1>
+                <p class="text-sm text-gray-400">Admin Panel</p>
+            </div>
+            <button onclick="toggleMobileMenu()" class="p-2 text-white">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+
         <nav class="h-full w-64 py-6">
             <a href="admin-dashboard.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition">Dashboard</a>
             <a href="admin-users.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition">Users</a>
