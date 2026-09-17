@@ -497,7 +497,7 @@
                         <a href="product-detail.html?id=${product.id}">
                             <div class="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
                                 ${product.image ? 
-                                    `<img src="${api.getStorageUrl(product.image)}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                    `<img src="${api.getStorageUrl(product.image)}" alt="${product.name}" class="w-full h-full object-contain" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
                                      <i class="fas fa-image text-4xl text-gray-400" style="display:none;"></i>` :
                                     '<i class="fas fa-image text-4xl text-gray-400"></i>'
                                 }

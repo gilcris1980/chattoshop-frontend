@@ -49,7 +49,7 @@
     </div>
 
     <!-- Mobile header: visible only on screens < md (768px) -->
-    <div id="admin-mobile-header" class="block md:hidden fixed top-0 left-0 right-0 bg-gray-900 z-50 border-b border-gray-700 p-3">
+    <div id="admin-mobile-header" class="block md:hidden fixed top-0 left-0 right-0 bg-gray-900 z-50 border-b border-gray-700 h-16 p-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <h1 class="text-xl font-bold text-indigo-400">ChattoShop</h1>
@@ -75,12 +75,12 @@
         </div>
 
         <nav class="h-full w-64 py-6">
-            <a href="admin-dashboard.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition">Dashboard</a>
-            <a href="admin-users.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition">Users</a>
-            <a href="orders.html?filter=all" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition">Orders</a>
-            <a href="admin-products.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition">Product Approval</a>
-            <a href="categories.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition">Categories</a>
-            <a href="dashboard.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition">My Dashboard</a>
+            <a href="admin-dashboard.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Dashboard</a>
+            <a href="admin-users.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Users</a>
+            <a href="orders.html?filter=all" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Orders</a>
+            <a href="admin-products.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Product Approval</a>
+            <a href="categories.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Categories</a>
+            <a href="dashboard.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">My Dashboard</a>
             <div class="border-t border-gray-700 mt-6 pt-4">
                 <button onclick="logout()" class="w-full text-left text-white hover:text-red-300 text-lg">Logout</button>
             </div>
@@ -91,7 +91,7 @@
     <div id="admin-mobile-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden" onclick="toggleMobileMenu()"></div>
 
     <!-- Main Content -->
-    <div class="md:ml-64 p-4 md:p-8">
+    <div class="md:ml-64 p-4 pt-20 md:p-8">
         <!-- Header -->
         <div class="flex md:flex-row flex-col items-center justify-between mb-8">
             <div>
@@ -99,7 +99,7 @@
                 <p class="text-gray-500">Welcome back, <span id="admin-name">Admin</span></p>
             </div>
             <div class="flex items-center space-x-4">
-                <span id="admin-role" class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">Super Admin</span>
+                <span id="admin-role" class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">System Admin</span>
             </div>
         </div>
 
