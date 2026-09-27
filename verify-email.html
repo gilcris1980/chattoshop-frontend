@@ -11,11 +11,14 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+<body class="relative min-h-screen">
 
-    <div class="w-full max-w-md">
+    <!-- Gradient Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-[#0F172A] via-indigo-600 to-purple-600 opacity-90"></div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-8">
+    <div class="relative z-10 w-full max-w-md mx-auto pt-12">
+
+        <div class="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full">
 
             <!-- HEADER -->
             <div class="text-center mb-8">
@@ -55,7 +58,7 @@
                         <input type="email"
                             id="email"
                             required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none"
                             placeholder="your@email.com">
 
                     </div>
@@ -70,14 +73,14 @@
                             id="otp"
                             required
                             maxlength="6"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-center text-xl tracking-widest"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none text-center text-xl tracking-widest"
                             placeholder="123456">
 
                     </div>
 
                     <button type="submit"
                         id="submit-btn"
-                        class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200">
+                        class="w-full bg-indigo-600 text-white py-3 rounded-2xl font-semibold hover:bg-indigo-700 shadow-lg shadow-indigo-500/20 transition duration-200">
 
                         Verify Email
 
@@ -89,7 +92,7 @@
 
                     <button
                         id="resend-btn"
-                        class="text-indigo-600 hover:text-indigo-800 font-medium text-sm">
+                        class="text-indigo-400 hover:text-indigo-300 font-medium text-sm">
 
                         <i class="fas fa-paper-plane mr-1"></i>
 
@@ -103,7 +106,7 @@
 
                 <div class="mt-6 text-center">
 
-                    <a href="./login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('user');" class="text-gray-500 hover:text-gray-700 text-sm">
+                    <a href="./login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('user');" class="text-gray-400 hover:text-gray-300 text-sm">
 
                         <i class="fas fa-arrow-left mr-1"></i>
 
@@ -131,7 +134,7 @@
                 </p>
 
                 <a href="./login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('user');"
-                    class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200">
+                    class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition duration-200">
 
                     <i class="fas fa-sign-in-alt mr-2"></i>
 
@@ -161,7 +164,7 @@
                 </p>
 
                 <a href="./login.html" onclick="localStorage.removeItem('token'); localStorage.removeItem('user');"
-                    class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200">
+                    class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-2xl font-semibold hover:bg-indigo-700 transition duration-200">
 
                     <i class="fas fa-sign-in-alt mr-2"></i>
 
