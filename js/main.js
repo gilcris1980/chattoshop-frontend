@@ -371,9 +371,9 @@ async function loadProducts() {
                     <div class="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
 
                         ${
-                            product.image
+product.image
                             ? `<img src="${api.getStorageUrl(product.image)}"
-                                   class="w-full h-full object-cover">`
+                               class="w-full h-full object-contain">`
                             : `<i class="fas fa-image text-4xl text-gray-400"></i>`
                         }
 

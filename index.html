@@ -112,6 +112,18 @@
             }
         })();
     </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = api.getUser();
+            if (user && (user.role === 'system_admin' || user.role === 'admin')) {
+                const dashboardLink = document.getElementById('dashboard-link');
+                const mobileDashboard = document.getElementById('mobile-dashboard');
+                if (dashboardLink) dashboardLink.classList.add('hidden');
+                if (mobileDashboard) mobileDashboard.classList.add('hidden');
+            }
+        });
+    </script>
 
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
