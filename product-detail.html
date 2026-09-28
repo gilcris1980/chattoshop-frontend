@@ -13,36 +13,36 @@
         @keyframes badgePulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-[#F8FAFC]">
     <!-- Navigation -->
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="index.html" class="text-2xl font-bold text-indigo-600">ChattoShop</a>
+                    <a href="index.html" class="text-2xl font-bold text-white">ChattoShop</a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.html" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
-                    <a href="products.html" class="text-gray-700 hover:text-indigo-600 font-medium">Products</a>
+                    <a href="index.html" class="text-gray-100 hover:text-indigo-400 font-medium">Home</a>
+                    <a href="products.html" class="text-gray-100 hover:text-indigo-400 font-medium">Products</a>
                     <!-- Seller: My Products link -->
-                    <a id="nav-my-products" href="seller-products.html" class="hidden text-gray-700 hover:text-indigo-600 font-medium">My Products</a>
+                    <a id="nav-my-products" href="seller-products.html" class="hidden text-gray-100 hover:text-indigo-400 font-medium">My Products</a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button id="cart-btn" class="relative p-2 text-gray-600 hover:text-indigo-600">
+                    <button id="cart-btn" class="relative p-2 text-gray-100 hover:text-indigo-400">
                         <i class="fas fa-shopping-cart text-xl"></i>
                         <span id="cart-count" class="absolute -top-1.5 -right-1.5 bg-indigo-600 text-white text-xs font-bold leading-none rounded-full min-w-5 h-5 px-1 flex items-center justify-center hidden">0</span>
                     </button>
                     <div id="nav-user" class="hidden flex items-center space-x-3">
                         <div class="relative">
-                            <button id="user-menu-btn" class="flex items-center space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition">
+                            <button id="user-menu-btn" class="flex items-center space-x-2 hover:bg-indigo-50 rounded-lg px-3 py-2 transition">
                                 <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" class="w-8 h-8 rounded-full">
-                                <span id="user-name" class="font-medium text-gray-700">User</span>
+                                <span id="user-name" class="font-medium text-gray-100">User</span>
                                 <i class="fas fa-chevron-down text-xs text-gray-500"></i>
                             </button>
                             <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-full md:w-64 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
                                 <div class="px-4 py-3 border-b">
-                                    <p id="dropdown-user-name" class="font-medium text-gray-800">User Name</p>
-                                    <p id="dropdown-user-email" class="text-sm text-gray-500">user@email.com</p>
+                                    <p id="dropdown-user-name" class="font-medium text-gray-100">User Name</p>
+                                    <p id="dropdown-user-email" class="text-sm text-gray-400">user@email.com</p>
                                 </div>
                                 <a href="profile.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-user mr-2"></i> Profile</a>
                                 <a id="my-orders-link" href="orders.html" class="block px-4 py-2 text-gray-700 hover:bg-indigo-50"><i class="fas fa-shopping-bag mr-2"></i> My Orders</a>
@@ -209,7 +209,7 @@
                 
                 if (product.image) {
                     document.getElementById('product-image').innerHTML = 
-                        '<img src="' + api.getStorageUrl(product.image) + '" alt="' + product.name + '" class="w-full h-full object-cover" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
+                        '<img src="' + api.getStorageUrl(product.image) + '" alt="' + product.name + '" class="w-full h-full object-contain" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">' +
                         '<i class="fas fa-image text-6xl text-gray-400" style="display:none;"></i>';
                 }
                 
