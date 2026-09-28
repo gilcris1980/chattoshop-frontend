@@ -15,7 +15,7 @@
 </head>
 <body class="bg-[#F8FAFC]">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <nav class="bg-[#0F172A] shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
@@ -222,8 +222,10 @@
                     document.getElementById('customer-controls').classList.add('hidden');
                     document.getElementById('edit-product-btn').href = 'edit-product.html?id=' + product.id;
                 } else if (!currentUser) {
-                    // Not logged in - hide customer controls
-                    document.getElementById('customer-controls').classList.add('hidden');
+                    // Not logged in - show customer controls (guest can Add to Cart)
+                    document.getElementById('customer-controls').classList.remove('hidden');
+                    document.getElementById('seller-controls').classList.add('hidden');
+                    document.getElementById('seller-purchase-warning').classList.add('hidden');
                 } else if (currentUser.role === 'seller') {
                     // Seller - show warning, hide customer controls
                     document.getElementById('seller-purchase-warning').classList.remove('hidden');

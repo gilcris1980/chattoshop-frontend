@@ -98,7 +98,13 @@
                 document.getElementById('order-summary').innerHTML = '';
                 return;
             }
-            if (!user || user.role !== 'customer') {
+            if (!user) {
+                // Guest cart: show cart with localStorage items instead of redirecting
+                await loadCart();
+                return;
+            }
+            if (user.role !== 'customer') {
+                // Admin / System Admin: redirect to dashboard
                 window.location.href = 'dashboard.html';
                 return;
             }
