@@ -160,8 +160,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             else {
 
-                window.location.href =
-                    './index.html';
+                await api.mergeLocalCartToServer();
+                
+                // Check for intended post-login destination (set by checkout.html)
+                const intendedDest = sessionStorage.getItem('intendedDest');
+                
+                // Clear the temporary marker before navigating
+                sessionStorage.removeItem('intendedDest');
+                
+                if (intendedDest === 'checkout') {
+
+                    window.location.href = './checkout.html';
+
+                } else {
+
+                    window.location.href = './index.html';
+
+                }
 
             }
 

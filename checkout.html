@@ -116,6 +116,8 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const user = api.getUser();
             if (!user) {
+                // Store temporary intended destination for return-to-checkout
+                sessionStorage.setItem('intendedDest', 'checkout');
                 window.location.href = 'login.html';
                 return;
             }
