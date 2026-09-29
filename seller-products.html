@@ -13,11 +13,11 @@
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <nav class="bg-[#0F172A] shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="index.html" class="text-2xl font-bold text-indigo-600">ChattoShop</a>
+                    <a href="index.html" class="text-2xl font-bold text-indigo-300">ChattoShop</a>
                     <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Seller</span>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
@@ -27,6 +27,12 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="relative">
+                        <button id="notification-btn" class="relative p-2 text-gray-300 hover:text-indigo-300">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notif-badge" class="absolute -top-1 -right-1 bg-indigo-400 text-white text-xs font-bold leading-none rounded-full min-w-5 h-5 px-1 flex items-center justify-center hidden">0</span>
+                        </button>
+                        
+                        <!-- User Menu Button -->
                         <button id="user-menu-btn" class="flex items-center space-x-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition">
                             <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=6366f1&color=fff" class="w-8 h-8 rounded-full">
                             <span id="user-name" class="font-medium text-gray-700">User</span>
@@ -44,6 +50,33 @@
                             <button onclick="logout()" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-100 mt-1 pt-1">
                                 <i class="fas fa-sign-out-alt mr-2"></i> Logout
                             </button>
+                        </div>
+
+                        <!-- Notification Dropdown -->
+                        <div
+                        id="notification-dropdown"
+                        class="hidden absolute right-0 mt-2 w-full md:w-64 bg-white rounded-lg shadow-lg border border-gray-700 py-2 z-50"
+                        >
+                        <div class="p-4 border-b">
+                            <h3 class="font-bold text-lg">
+                                Notifications
+                            </h3>
+                        </div>
+
+                        <div
+                            id="notifications-list"
+                            class="max-h-96 overflow-y-auto"
+                        >
+                        </div>
+
+                        <div class="p-4 border-t text-center">
+                            <button
+                                onclick="markAllNotificationsRead()"
+                                class="text-indigo-600 hover:text-indigo-800"
+                            >
+                                Mark all as read
+                            </button>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -225,6 +258,9 @@
             // Setup dropdown
             setupDropdown();
             
+            // Load notifications
+            await loadNotifications();
+            
             document.getElementById('my-orders-link')?.classList.add('hidden');
             
             if (user.seller_status === 'pending') {
@@ -266,6 +302,28 @@
                     dropdown.classList.add('hidden');
                 }
             });
+        }
+        
+        async function loadNotifications() {
+            try {
+                const data = await api.get('/notifications/unread-count');
+                const badge = document.getElementById('notif-badge');
+                const dropdown = document.getElementById('notification-dropdown');
+                if (!badge || !dropdown) return;
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count > 9 ? '9+' : data.unread_count;
+                    badge.classList.remove('hidden');
+                    badge.classList.remove('badge-pulse');
+                    void badge.offsetWidth;
+                    badge.classList.add('badge-pulse');
+                    dropdown.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                    dropdown.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
         }
         
         async function loadCategories() {
