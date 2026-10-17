@@ -220,6 +220,65 @@
                 sessionStorage.removeItem('verify_message');
             }
 
+            // =========================
+            // RESEND COOLDOWN HANDLER
+            // =========================
+
+            const COOLDOWN_KEY = 'verification-resend-cooldown';
+            const COOLDOWN_DURATION = 30; // seconds
+            window._verifyEmailTimer = null; // timer reference safety
+
+            // On page load: read expiry and resume remaining time
+            function initResendCooldown() {
+                const expiry = sessionStorage.getItem(COOLDOWN_KEY);
+                if (expiry) {
+                    const expiryTime = parseInt(expiry, 10);
+                    const now = Math.floor(Date.now() / 1000);
+                    if (now < expiryTime) {
+                        // Cooldown still active — resume from remaining seconds
+                        const remaining = expiryTime - now;
+                        startResendCooldown(remaining);
+                    } else {
+                        // Cooldown expired — clear timestamp
+                        sessionStorage.removeItem(COOLDOWN_KEY);
+                        if (resendBtn) {
+                            resendBtn.disabled = false;
+                            resendBtn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i>Resend OTP';
+                        }
+                    }
+                }
+            }
+
+            function startResendCooldown(remaining) {
+                // Clear any existing timer
+                if (window._verifyEmailTimer) {
+                    clearInterval(window._verifyEmailTimer);
+                    window._verifyEmailTimer = null;
+                }
+                let seconds = remaining;
+                if (resendBtn) {
+                    resendBtn.disabled = true;
+                    resendBtn.innerHTML = `Resend in ${seconds}s`;
+                }
+                window._verifyEmailTimer = setInterval(() => {
+                    seconds--;
+                    if (resendBtn) {
+                        resendBtn.innerHTML = `Resend in ${seconds}s`;
+                    }
+                    if (seconds <= 0) {
+                        clearInterval(window._verifyEmailTimer);
+                        window._verifyEmailTimer = null;
+                        if (resendBtn) {
+                            resendBtn.disabled = false;
+                            resendBtn.innerHTML = '<i class="fas fa-paper-plane mr-1"></i>Resend OTP';
+                        }
+                        sessionStorage.removeItem(COOLDOWN_KEY);
+                    }
+                }, 1000);
+            }
+
+            initResendCooldown();
+
             loadingState.classList.add('hidden');
             verifyForm.classList.remove('hidden');
 
@@ -274,6 +333,11 @@
                         resendMessage.textContent = 'OTP sent! Check your email inbox.';
                         resendMessage.className = 'text-sm mt-4 text-green-600';
 
+                        // Start 30-second cooldown
+                        const expiryTime = Math.floor(Date.now() / 1000) + COOLDOWN_DURATION;
+                        sessionStorage.setItem(COOLDOWN_KEY, expiryTime.toString());
+                        startResendCooldown(COOLDOWN_DURATION);
+
                     } catch (error) {
                         let msg = error.data?.message || error.message || 'Failed to resend OTP';
                         if (error.status === 429) {
@@ -281,14 +345,26 @@
                             msg = retryAfter
                                 ? `Too many requests. Please try again in ${retryAfter} seconds.`
                                 : 'Too many requests. Please wait before trying again.';
+
+                            // Respect server-provided retry_after — persist cooldown
+                            const serverRetry = error.data?.retry_after;
+                            if (serverRetry && serverRetry > 0) {
+                                const serverExpiry = Math.floor(Date.now() / 1000) + serverRetry;
+                                sessionStorage.setItem(COOLDOWN_KEY, serverExpiry.toString());
+                                startResendCooldown(serverRetry);
+                            }
                         }
 
                         resendMessage.textContent = msg;
                         resendMessage.className = 'text-sm mt-4 text-red-600';
 
                     } finally {
-                        resendBtn.disabled = false;
-                        resendBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Resend OTP';
+                        // Only re-enable button if cooldown has expired
+                        const expiry = sessionStorage.getItem(COOLDOWN_KEY);
+                        if (!expiry || Math.floor(Date.now() / 1000) >= parseInt(expiry, 10)) {
+                            resendBtn.disabled = false;
+                            resendBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Resend OTP';
+                        }
                         resendMessage.classList.remove('hidden');
                     }
                 });
