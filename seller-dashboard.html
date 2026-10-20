@@ -520,16 +520,27 @@ document.addEventListener('click', (e) => {
                 data.data || data;
 
             const STATUS_PRIORITY = {
-                completed: 0,
-                delivered: 1,
+                pending: 0,
+                processing: 1,
                 shipped: 2,
-                processing: 3,
-                pending: 4,
+                delivered: 3,
+                completed: 4,
                 cancelled: 5
             };
 
             if (Array.isArray(orders)) {
-                orders.sort((a, b) => (STATUS_PRIORITY[a.status] ?? 99) - (STATUS_PRIORITY[b.status] ?? 99));
+                orders.sort((a, b) => {
+                    const diff =
+                        (STATUS_PRIORITY[a.status] ?? 99) -
+                        (STATUS_PRIORITY[b.status] ?? 99);
+
+                    if (diff !== 0) return diff;
+
+                    // Same status: newest first
+                    return (
+                        new Date(b.created_at) - new Date(a.created_at)
+                    );
+                });
             }
 
             if (!orders || orders.length === 0) {

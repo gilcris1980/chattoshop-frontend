@@ -28,7 +28,7 @@
             <a href="admin-users.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
                 <i class="fas fa-users mr-3"></i> Users
             </a>
-            <a href="orders.html?filter=all" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
+            <a href="admin-orders.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
                 <i class="fas fa-shopping-bag mr-3"></i> Orders
             </a>
             <a href="admin-products.html" class="flex items-center px-6 py-3 hover:bg-gray-800 transition">
@@ -77,7 +77,7 @@
         <nav class="h-full w-64 py-6">
             <a href="admin-dashboard.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Dashboard</a>
             <a href="admin-users.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Users</a>
-            <a href="orders.html?filter=all" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Orders</a>
+            <a href="admin-orders.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Orders</a>
             <a href="admin-products.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Product Approval</a>
             <a href="categories.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">Categories</a>
             <a href="dashboard.html" class="block text-white text-lg font-medium mb-4 hover:text-indigo-300 transition pl-6">My Dashboard</a>
@@ -227,7 +227,7 @@
             <div class="bg-white rounded-lg shadow">
                 <div class="p-6 border-b flex justify-between items-center">
                     <h2 class="text-xl font-semibold text-gray-800">Recent Orders</h2>
-                    <a href="orders.html?filter=all" class="text-indigo-600 hover:text-indigo-800 text-sm">View All</a>
+                    <a href="admin-orders.html" class="text-indigo-600 hover:text-indigo-800 text-sm">View All</a>
                 </div>
                 <div id="recent-orders" class="p-6">
                     <div class="text-center py-8">
@@ -290,22 +290,43 @@
         </div>
     </div>
 
-    <!-- Delete Order Confirmation Modal -->
-    <div id="delete-order-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <!-- Archive Order Confirmation Modal -->
+    <div id="archive-order-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-sm">
                 <div class="p-6 text-center">
-                    <div class="w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+                    <div class="w-12 h-12 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-box-archive text-2xl text-amber-600"></i>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2">Delete Order</h3>
-                    <p class="text-gray-500 mb-6">Are you sure you want to permanently delete this order record?</p>
-                    <input type="hidden" id="delete-order-id">
+                    <h3 class="text-xl font-semibold mb-2">Archive Order</h3>
+                    <p class="text-gray-500 mb-6">Archive this cancelled order? It will be hidden from admin lists but kept for history. Customers and sellers will still see it.</p>
+                    <input type="hidden" id="archive-order-id">
                     <div class="flex justify-center gap-3">
-                        <button onclick="closeDeleteOrderModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                        <button onclick="confirmDeleteOrder()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
+                        <button id="archive-keep-btn" onclick="closeArchiveOrderModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">No, Keep Order</button>
+                        <button id="archive-confirm-btn" onclick="confirmArchiveOrder()" class="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700">Yes, Archive Order</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal (read-only) -->
+    <div id="order-details-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b flex justify-between items-start gap-4">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800">Order #<span id="detail-order-id"></span></h3>
+                        <p class="text-sm text-gray-500 mt-1" id="detail-order-date"></p>
+                    </div>
+                    <div class="flex items-center gap-3 flex-shrink-0">
+                        <span id="detail-order-status" class="px-3 py-1 rounded-full text-sm font-medium"></span>
+                        <button onclick="closeOrderDetailsModal()" class="text-gray-400 hover:text-gray-600" title="Close">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="order-details-body" class="p-6"></div>
             </div>
         </div>
     </div>
@@ -360,7 +381,7 @@
                 const ordersContainer = document.getElementById('recent-orders');
                 if (data.recent_orders && data.recent_orders.length > 0) {
                     ordersContainer.innerHTML = data.recent_orders.map(order => `
-                        <div class="flex items-center justify-between py-3 border-b last:border-0">
+                        <div class="flex items-center justify-between py-3 border-b last:border-0 cursor-pointer hover:bg-gray-50 px-2 -mx-2 rounded" onclick="openOrderDetails(${order.id})" title="View order details">
                             <div>
                                 <p class="font-medium text-gray-800">Order #${order.id}</p>
                                 <p class="text-sm text-gray-500">${order.user?.name || 'Unknown'}</p>
@@ -371,9 +392,10 @@
                                     <p class="font-bold text-indigo-600">${api.formatCurrency(order.total_amount)}</p>
                                     <span class="px-2 py-1 rounded text-xs ${getStatusClass(order.status)}">${order.status}</span>
                                 </div>
-                                <button onclick="openDeleteOrderModal(${order.id})" class="text-red-500 hover:text-red-700" title="Delete Order">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                ${order.status === 'cancelled' ? `
+                                <button onclick="event.stopPropagation(); openArchiveOrderModal(${order.id})" class="text-amber-600 hover:text-amber-700" title="Archive Order">
+                                    <i class="fas fa-box-archive"></i>
+                                </button>` : ''}
                             </div>
                         </div>
                     `).join('');
@@ -437,15 +459,98 @@
             window.location.href = 'index.html';
         }
         
-        function openDeleteOrderModal(id) {
-            document.getElementById('delete-order-id').value = id;
-            document.getElementById('delete-order-modal').classList.remove('hidden');
+        let isArchiving = false;
+
+        function openArchiveOrderModal(id) {
+            if (isArchiving) return;
+            document.getElementById('archive-order-id').value = id;
+            document.getElementById('archive-order-modal').classList.remove('hidden');
         }
         
-        function closeDeleteOrderModal() {
-            document.getElementById('delete-order-modal').classList.add('hidden');
+        function closeArchiveOrderModal() {
+            if (isArchiving) return;
+            document.getElementById('archive-order-modal').classList.add('hidden');
         }
         
+        async function openOrderDetails(id) {
+            const modal = document.getElementById('order-details-modal');
+            const body = document.getElementById('order-details-body');
+
+            document.getElementById('detail-order-id').textContent = id;
+            document.getElementById('detail-order-date').textContent = '';
+            document.getElementById('detail-order-status').textContent = '';
+            document.getElementById('detail-order-status').className = 'px-3 py-1 rounded-full text-sm font-medium';
+            body.innerHTML = '<p class="text-center text-gray-500 py-8"><i class="fas fa-spinner fa-spin mr-2"></i>Loading order details...</p>';
+            modal.classList.remove('hidden');
+
+            try {
+                const order = await api.get('/orders/' + id);
+                renderOrderDetails(order);
+            } catch (error) {
+                document.getElementById('detail-order-date').textContent = '';
+                body.innerHTML = '<p class="text-center text-red-500 py-8">' + (error.message || 'Failed to load order details') + '</p>';
+            }
+        }
+
+        function renderOrderDetails(order) {
+            const items = order.items || [];
+
+            document.getElementById('detail-order-id').textContent = order.id;
+            document.getElementById('detail-order-date').textContent = 'Placed on ' + new Date(order.created_at).toLocaleDateString('en-PH', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            const statusBadge = document.getElementById('detail-order-status');
+            statusBadge.textContent = order.status;
+            statusBadge.className = 'px-3 py-1 rounded-full text-sm font-medium ' + getStatusClass(order.status);
+
+            const productsHtml = items.length > 0 ? items.map(item => {
+                const product = item.product || {};
+                return `
+                    <div class="p-3 flex justify-between items-start gap-4">
+                        <div>
+                            <p class="font-medium text-gray-800">${product.name || 'Product'}</p>
+                            <p class="text-xs text-gray-500 mt-1">Seller: ${product.seller?.name || 'N/A'}</p>
+                        </div>
+                        <div class="text-right text-sm text-gray-600 flex-shrink-0">
+                            <p>Qty: ${item.quantity}</p>
+                            <p>${api.formatCurrency(item.price)} each</p>
+                            <p class="font-semibold text-gray-800 mt-1">${api.formatCurrency(parseFloat(item.price) * item.quantity)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('') : '<p class="p-4 text-center text-gray-500">No items found</p>';
+
+            document.getElementById('order-details-body').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase mb-2">Customer</h4>
+                        <p class="text-gray-800 font-medium">${order.user?.name || 'Unknown'}</p>
+                        <p class="text-sm text-gray-500">${order.user?.email || 'N/A'}</p>
+                        <p class="text-sm text-gray-500">Phone: ${order.user?.phone || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-semibold text-gray-500 uppercase mb-2">Shipping &amp; Payment</h4>
+                        <p class="text-gray-800">${order.shipping_address || 'N/A'}</p>
+                        <p class="text-sm text-gray-500 mt-1">Payment: ${(order.payment_method || 'cod').toUpperCase()}</p>
+                        ${order.notes ? `<p class="text-sm text-gray-500 mt-1">Notes: ${order.notes}</p>` : ''}
+                    </div>
+                </div>
+                <h4 class="text-xs font-semibold text-gray-500 uppercase mb-2">Products</h4>
+                <div class="border rounded-lg divide-y divide-gray-200">
+                    ${productsHtml}
+                </div>
+                <div class="flex justify-between items-center mt-4 pt-4 border-t">
+                    <span class="font-semibold text-gray-800">Total Amount</span>
+                    <span class="text-xl font-bold text-indigo-600">${api.formatCurrency(order.total_amount)}</span>
+                </div>
+            `;
+        }
+
+        function closeOrderDetailsModal() {
+            document.getElementById('order-details-modal').classList.add('hidden');
+        }
+
         function toggleMobileMenu() {
             const drawer = document.getElementById('admin-mobile-drawer');
             const backdrop = document.getElementById('admin-mobile-backdrop');
@@ -462,17 +567,28 @@
             }
         }
         
-        async function confirmDeleteOrder() {
-            const id = document.getElementById('delete-order-id').value;
+        async function confirmArchiveOrder() {
+            if (isArchiving) return;
+
+            const id = document.getElementById('archive-order-id').value;
+
+            isArchiving = true;
+            const confirmBtn = document.getElementById('archive-confirm-btn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Archiving...';
             
             try {
-                await api.delete(`/orders/${id}`);
-                showToast('Order deleted successfully', 'success');
-                closeDeleteOrderModal();
+                await api.post(`/orders/${id}/archive`, {});
+                showToast('Order archived successfully', 'success');
+                document.getElementById('archive-order-modal').classList.add('hidden');
                 loadDashboardData();
             } catch (error) {
-                showToast(error.message || 'Failed to delete order', 'error');
-                closeDeleteOrderModal();
+                showToast(error.message || 'Failed to archive order', 'error');
+                document.getElementById('archive-order-modal').classList.add('hidden');
+            } finally {
+                isArchiving = false;
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Yes, Archive Order';
             }
         }
         

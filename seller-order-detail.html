@@ -186,6 +186,47 @@
                 </div>
             </div>
 
+            <!-- Actions (only while the order is still pending) -->
+            <div id="order-actions" class="hidden bg-white rounded-lg shadow overflow-hidden mb-6">
+                <div class="px-6 py-4 border-b bg-gray-50">
+                    <h3 class="font-semibold text-gray-800"><i class="fas fa-bolt mr-2 text-indigo-600"></i>Actions</h3>
+                </div>
+                <div class="px-6 py-5">
+                    <button id="seller-cancel-btn" onclick="cancelOrder()"
+                        class="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">
+                        <i class="fas fa-times mr-2"></i>Cancel Order
+                    </button>
+                    <p class="text-sm text-gray-500 mt-2">
+                        Cancel only while the order is still pending (for example, when stock is unavailable).
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div id="cancel-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">Cancel Order</h3>
+                    <p class="text-gray-600 mt-1">Are you sure you want to cancel this order?</p>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button id="cancel-keep-btn" onclick="closeCancelModal()"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300">
+                    No, Keep Order
+                </button>
+                <button id="cancel-confirm-btn" onclick="confirmCancel()"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">
+                    <i class="fas fa-times mr-1"></i>Yes, Cancel Order
+                </button>
+            </div>
         </div>
     </div>
 
@@ -195,6 +236,7 @@
         let orderData = null;
         let dropdownOpen = false;
         let notificationDropdownOpen = false;
+        let isCancelling = false;
 
         const STATUS_FLOW = ['pending', 'processing', 'shipped', 'delivered', 'completed'];
         const STATUS_LABELS = {
@@ -398,6 +440,14 @@
 
             // Status flow timeline
             renderStatusFlow(order.status);
+
+            // Cancel action is only available while the order is still pending
+            const orderActions = document.getElementById('order-actions');
+            if (order.status === 'pending') {
+                orderActions.classList.remove('hidden');
+            } else {
+                orderActions.classList.add('hidden');
+            }
         }
 
         function renderStatusFlow(currentStatus) {
@@ -487,6 +537,45 @@
                 statusBadge.className = 'px-4 py-2 rounded-full text-sm font-medium ' + (STATUS_COLORS[newStatus] || 'bg-gray-100 text-gray-800');
             } catch (error) {
                 showToast(error.message || 'Failed to update order status', 'error');
+            }
+        }
+
+        function cancelOrder() {
+            if (!orderData || orderData.status !== 'pending' || isCancelling) return;
+
+            document.getElementById('cancel-modal').classList.remove('hidden');
+        }
+
+        function closeCancelModal() {
+            if (isCancelling) return;
+            document.getElementById('cancel-modal').classList.add('hidden');
+        }
+
+        async function confirmCancel() {
+            if (!orderData || orderData.status !== 'pending' || isCancelling) return;
+
+            isCancelling = true;
+
+            const confirmBtn = document.getElementById('cancel-confirm-btn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Cancelling...';
+
+            try {
+                await api.post('/orders/' + orderId + '/cancel');
+
+                document.getElementById('cancel-modal').classList.add('hidden');
+                showToast('Order cancelled successfully', 'success');
+
+                // Refresh order details, status badge and status timeline
+                orderData.status = 'cancelled';
+                renderOrder(orderData);
+                await loadOrder();
+            } catch (error) {
+                showToast(error.message || 'Failed to cancel order', 'error');
+            } finally {
+                isCancelling = false;
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-times mr-1"></i>Yes, Cancel Order';
             }
         }
 
