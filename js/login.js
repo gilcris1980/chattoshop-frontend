@@ -62,6 +62,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================
+    // SESSION NOTICE (set by api.js when a stored session was rejected)
+    // =========================
+
+    const sessionNotice = sessionStorage.getItem('login_notice');
+
+    if (sessionNotice) {
+
+        sessionStorage.removeItem('login_notice');
+
+        const noticeEl = document.getElementById('email-error');
+
+        if (noticeEl) {
+
+            noticeEl.textContent = sessionNotice;
+
+            noticeEl.classList.remove('hidden');
+
+        }
+
+    }
+
+    // =========================
     // PASSWORD TOGGLE
     // =========================
 
@@ -130,8 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.innerHTML = 'Logging in...';
 
             const data = await api.post('/login', { email, password });
-
-            console.log('LOGIN RESPONSE:', data);
 
             // SAVE TOKEN
             api.setToken(data.token);

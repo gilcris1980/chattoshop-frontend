@@ -57,9 +57,8 @@ const api = {
     },
     
     setToken(token) {
-        console.log('setToken called with:', token ? token.substring(0, 30) + '...' : null);
+        // Never log token values — only that a session was stored.
         localStorage.setItem('token', token);
-        console.log('Token stored in localStorage:', localStorage.getItem('token') ? localStorage.getItem('token').substring(0, 30) + '...' : null);
     },
     
     removeToken() {
@@ -79,6 +78,19 @@ const api = {
     removeUser() {
         localStorage.removeItem('user');
     },
+
+    // Clear a stale/invalid session and send the user to login exactly once.
+    // Used when the server rejects the stored token (401), so the UI never
+    // keeps showing an apparently logged-in account with a dead token.
+    handleUnauthorized() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        if (!window.__chattoLoginRedirect) {
+            window.__chattoLoginRedirect = true;
+            sessionStorage.setItem('login_notice', 'Your session has expired. Please log in again.');
+            window.location.href = './login.html';
+        }
+    },
     
     updateUserUI(user) {
         const userName = document.getElementById('user-name');
@@ -94,7 +106,7 @@ const api = {
         const url = `${this.baseUrl}${endpoint}`;
         const token = this.getToken();
         
-        console.log('Request:', endpoint, 'Token exists:', !!token, 'Token:', token ? token.substring(0, 20) + '...' : null);
+        console.log('Request:', endpoint, 'Authenticated:', !!token);
         
         const headers = {
             'Content-Type': 'application/json',
@@ -104,7 +116,6 @@ const api = {
         
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
-            console.log('Authorization header set:', headers['Authorization'].substring(0, 30) + '...');
         } else {
             console.log('No token available for request');
         }
@@ -130,9 +141,25 @@ const api = {
                 throw new Error('Something went wrong while processing your request. Please try again later.');
             }
             
-            console.log('Response:', response.status, data);
+            // Log status only — response bodies can contain tokens (e.g. /login).
+            console.log('Response:', response.status);
             
             if (!response.ok) {
+                // 401 on an authenticated request means the stored token is
+                // invalid or revoked. Clear the session and go to login
+                // instead of leaving the UI in an apparently logged-in state.
+                // Skipped for /login, where 401 simply means bad credentials.
+                if (
+                    response.status === 401 &&
+                    token &&
+                    !endpoint.startsWith('/login')
+                ) {
+                    this.handleUnauthorized();
+                    const error = new Error(data.message || 'Your session has expired. Please log in again.');
+                    error.data = data;
+                    error.status = response.status;
+                    throw error;
+                }
                 if (!options.skipVerificationRedirect && response.status === 403 && (data.needs_verification || (data.message && data.message.includes('not verified')))) {
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
@@ -163,7 +190,9 @@ const api = {
     },
     
     post(endpoint, data, options = {}) {
-        console.log('API POST:', this.baseUrl + endpoint, data);
+        // Do not log the request body — it may contain credentials
+        // (e.g. passwords on /login and /change-password).
+        console.log('API POST:', this.baseUrl + endpoint);
         return this.request(endpoint, {
             method: 'POST',
             body: JSON.stringify(data),
@@ -223,6 +252,15 @@ const api = {
         }
         
         if (!response.ok) {
+            // Same session handling as request(): a 401 here means the
+            // stored token is invalid or revoked — clear it and go to login.
+            if (response.status === 401 && token) {
+                this.handleUnauthorized();
+                const error = new Error(data.message || 'Your session has expired. Please log in again.');
+                error.data = data;
+                error.status = response.status;
+                throw error;
+            }
             if (response.status === 403 && (data.needs_verification || (data.message && data.message.includes('not verified')))) {
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');

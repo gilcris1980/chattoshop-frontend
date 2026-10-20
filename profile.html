@@ -47,6 +47,7 @@
                     </a>
 
                     <a href="dashboard.html"
+                        id="nav-purchases-link"
                         class="text-gray-700 hover:text-indigo-600 font-medium">
                         My Purchases
                     </a>
@@ -295,7 +296,8 @@
 
                 <div class="bg-white rounded-lg shadow p-6 mt-6">
 
-                    <a href="dashboard.html"
+                    <a id="back-dash-link"
+                        href="dashboard.html"
                         class="block text-center text-indigo-600 hover:text-indigo-800">
 
                         <i class="fas fa-arrow-left mr-2"></i>
@@ -369,6 +371,48 @@
                     api.getStorageUrl(user.avatar)
                     + '?t=' + new Date().getTime();
 
+            }
+
+            updateDashboardLinks(user);
+
+        }
+
+        // ROLE-BASED DASHBOARD NAVIGATION
+        // Sellers must not be sent to the customer purchases page;
+        // admins get the admin dashboard; customers keep My Purchases.
+        function getDashboardLink(user) {
+
+            if (user?.role === 'seller') {
+                return { href: 'seller-dashboard.html', label: 'Seller Dashboard' };
+            }
+
+            if (user?.role === 'system_admin' || user?.role === 'admin') {
+                return { href: 'admin-dashboard.html', label: 'Admin Dashboard' };
+            }
+
+            return { href: 'dashboard.html', label: 'My Purchases' };
+
+        }
+
+        function updateDashboardLinks(user) {
+
+            const link = getDashboardLink(user);
+
+            const navLink =
+                document.getElementById('nav-purchases-link');
+
+            if (navLink) {
+                navLink.href = link.href;
+                navLink.textContent = link.label;
+            }
+
+            const backLink =
+                document.getElementById('back-dash-link');
+
+            if (backLink) {
+                backLink.href = link.href;
+                backLink.innerHTML =
+                    `<i class="fas fa-arrow-left mr-2"></i> Back to ${link.label}`;
             }
 
         }
