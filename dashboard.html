@@ -298,6 +298,32 @@
             }
         }
         
+        const STATUS_PRIORITY = {
+            pending: 0,
+            processing: 1,
+            shipped: 2,
+            delivered: 3,
+            completed: 4,
+            cancelled: 5
+        };
+
+        // Same status-priority ordering as orders.html and seller-dashboard.html.
+        // Sorts a COPY so shared API response data is never mutated.
+        function sortOrdersByPriority(list) {
+            if (!Array.isArray(list)) return list;
+            return [...list].sort((a, b) => {
+                const diff = (STATUS_PRIORITY[a.status] ?? 99) - (STATUS_PRIORITY[b.status] ?? 99);
+                if (diff !== 0) return diff;
+
+                // Same status: newest first
+                const timeDiff = new Date(b.created_at) - new Date(a.created_at);
+                if (!Number.isNaN(timeDiff) && timeDiff !== 0) return timeDiff;
+
+                // Missing or equal timestamps: numeric ID descending (deterministic)
+                return (Number(b.id) || 0) - (Number(a.id) || 0);
+            });
+        }
+
         async function loadOrders() {
             try {
                 const data = await api.get('/orders');
@@ -314,22 +340,6 @@
                     return;
                 }
                 
-                const statusPriority = {
-                    delivered: 0,
-                    completed: 0,
-                    shipped: 1,
-                    processing: 2,
-                    pending: 3,
-                    cancelled: 4
-                };
-
-                orders.sort((a, b) => {
-                    const pa = statusPriority[a.status] ?? 5;
-                    const pb = statusPriority[b.status] ?? 5;
-                    if (pa !== pb) return pa - pb;
-                    return new Date(b.created_at) - new Date(a.created_at);
-                });
-
                 const statusColors = {
                     pending: 'bg-yellow-100 text-yellow-800',
                     processing: 'bg-blue-100 text-blue-800',
@@ -340,7 +350,7 @@
                     cancelled: 'bg-red-100 text-red-800'
                 };
                 
-                document.getElementById('orders-list').innerHTML = orders.map(order => `
+                document.getElementById('orders-list').innerHTML = sortOrdersByPriority(orders).map(order => `
                     <a href="order-detail.html?id=${order.id}" class="block border rounded-lg p-4 hover:bg-gray-50 transition">
                         <div class="flex justify-between items-center">
                             <div>

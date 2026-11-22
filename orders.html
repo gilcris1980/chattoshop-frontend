@@ -151,6 +151,32 @@
             });
         }
         
+        const STATUS_PRIORITY = {
+            pending: 0,
+            processing: 1,
+            shipped: 2,
+            delivered: 3,
+            completed: 4,
+            cancelled: 5
+        };
+
+        // Same status-priority ordering as seller-dashboard.html.
+        // Sorts a COPY so shared API response data is never mutated.
+        function sortOrdersByPriority(list) {
+            if (!Array.isArray(list)) return list;
+            return [...list].sort((a, b) => {
+                const diff = (STATUS_PRIORITY[a.status] ?? 99) - (STATUS_PRIORITY[b.status] ?? 99);
+                if (diff !== 0) return diff;
+
+                // Same status: newest first
+                const timeDiff = new Date(b.created_at) - new Date(a.created_at);
+                if (!Number.isNaN(timeDiff) && timeDiff !== 0) return timeDiff;
+
+                // Missing or equal timestamps: numeric ID descending (deterministic)
+                return (Number(b.id) || 0) - (Number(a.id) || 0);
+            });
+        }
+
         async function loadOrders() {
             const user = api.getUser();
             try {
@@ -172,7 +198,7 @@
                 const isSeller = user.role === 'seller';
                 const canUpdateStatus = isAdmin || isSeller;
                 
-                document.getElementById('orders-list').innerHTML = orders.map(order => {
+                document.getElementById('orders-list').innerHTML = sortOrdersByPriority(orders).map(order => {
                     const items = order.items || [];
                     const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
                     
@@ -276,7 +302,7 @@
                 return;
             }
             
-            document.getElementById('orders-list').innerHTML = orders.map(order => {
+            document.getElementById('orders-list').innerHTML = sortOrdersByPriority(orders).map(order => {
                 const items = order.items || [];
                 
                 return `
