@@ -207,7 +207,7 @@ function checkAuth() {
         if (mobileUser) mobileUser.classList.remove('hidden');
 
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        if (mobileMenuBtn) mobileMenuBtn.classList.add('hidden');
+        if (mobileMenuBtn) mobileMenuBtn.classList.remove('hidden');
 
         loadNotifications();
     } else {
