@@ -237,6 +237,7 @@
         let dropdownOpen = false;
         let notificationDropdownOpen = false;
         let isCancelling = false;
+        let isUpdatingStatus = false;
 
         const STATUS_FLOW = ['pending', 'processing', 'shipped', 'delivered', 'completed'];
         const STATUS_LABELS = {
@@ -442,8 +443,15 @@
             renderStatusFlow(order.status);
 
             // Cancel action is only available while the order is still pending
+            renderOrderActions(order.status);
+        }
+
+        // Keeps the Actions section (Cancel Order) in sync with the
+        // confirmed order status — used by initial load, status updates
+        // and cancellation so the button never goes stale.
+        function renderOrderActions(status) {
             const orderActions = document.getElementById('order-actions');
-            if (order.status === 'pending') {
+            if (status === 'pending') {
                 orderActions.classList.remove('hidden');
             } else {
                 orderActions.classList.add('hidden');
@@ -517,7 +525,7 @@
         }
 
         async function updateStatus(newStatus) {
-            if (!orderData) return;
+            if (!orderData || isUpdatingStatus) return;
 
             const currentIdx = STATUS_FLOW.indexOf(orderData.status);
             const newIdx = STATUS_FLOW.indexOf(newStatus);
@@ -527,16 +535,24 @@
                 return;
             }
 
+            // Prevent duplicate submissions while a status update is in flight
+            isUpdatingStatus = true;
+
             try {
                 await api.put('/orders/' + orderId + '/status', { status: newStatus });
                 showToast('Order status updated to ' + (STATUS_LABELS[newStatus] || newStatus), 'success');
                 orderData.status = newStatus;
                 renderStatusFlow(newStatus);
+                // Sync actions with the confirmed status: leaving 'pending'
+                // must immediately hide the Cancel Order button.
+                renderOrderActions(newStatus);
                 const statusBadge = document.getElementById('order-status-badge');
                 statusBadge.textContent = STATUS_LABELS[newStatus] || newStatus;
                 statusBadge.className = 'px-4 py-2 rounded-full text-sm font-medium ' + (STATUS_COLORS[newStatus] || 'bg-gray-100 text-gray-800');
             } catch (error) {
                 showToast(error.message || 'Failed to update order status', 'error');
+            } finally {
+                isUpdatingStatus = false;
             }
         }
 

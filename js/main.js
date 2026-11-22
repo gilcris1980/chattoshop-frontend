@@ -373,6 +373,7 @@ async function loadProducts() {
                         ${
 product.image
                             ? `<img src="${api.getStorageUrl(product.image)}"
+                               alt="${product.name}" loading="lazy" decoding="async"
                                class="w-full h-full object-contain">`
                             : `<i class="fas fa-image text-4xl text-gray-400"></i>`
                         }
@@ -419,6 +420,16 @@ product.image
     } catch (error) {
 
         console.error(error);
+
+        // Show a visible error state instead of leaving the skeleton spinning
+        grid.innerHTML = `
+            <div class="col-span-full text-center py-8 text-gray-500">
+                Unable to load products.
+                <button onclick="loadProducts()" class="ml-2 text-indigo-600 hover:text-indigo-800 font-medium">
+                    Retry
+                </button>
+            </div>
+        `;
 
     }
 
